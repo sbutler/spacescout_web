@@ -270,6 +270,8 @@ function run_custom_search() {
                 from_query.push('00:00');
             }
             window.spacescout_search_options["open_at"] = from_query.join(",");
+        }else {
+            window.spacescout_search_options["open_at"] = "nopref";
         }
 
         if ($('#day-from').val() != 'nopref' && $('#day-until').val() != 'nopref') {
@@ -565,6 +567,8 @@ function fetch_data() {
     // it's a hack, but it should work
     if (!args["open_at"]) {
         args["open_now"] = 1;
+    }else if(args["open_at"]=="nopref") {
+        args["open_at"]=""
     }
 
     var display_bounds = window.spacescout_map.getBounds();
