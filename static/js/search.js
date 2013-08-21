@@ -274,7 +274,7 @@ function run_custom_search() {
             window.spacescout_search_options["open_at"] = "nopref";
         }
 
-        if ($('#day-from').val() != 'nopref' && $('#day-until').val() != 'nopref') {
+        if ($('#day-until').val() != 'nopref') {
             var until_query = new Array;
             until_query.push($('#day-until').val());
             if ($('#hour-until').val() != 'nopref') {
@@ -293,6 +293,16 @@ function run_custom_search() {
                 until_query.push('23:59');
             }
             window.spacescout_search_options["open_until"] = until_query.join(",");
+            if ($('#day-from').val() == 'nopref') {
+                var from_query = new Array;
+                from_query.push($('#day-until').val());
+                if(time) {
+                    from_query.push(time);
+                }else {
+                    from_query.push('23:59');
+                }
+                window.spacescout_search_options["open_at"] = from_query.join(",");
+            }
         }
         set_cookie = true;
     }
