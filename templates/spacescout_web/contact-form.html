@@ -1,10 +1,10 @@
-{% extends "suggest.html" %}
+{% extends "spacescout_web/contact.html" %}
 
-{% block suggest-content %}
+{% block contact-content %}
 
-    {% if not is_mobile %}<h2 class="suggest-header">Suggest a Space</h2>{% endif %}
+    {% if not is_mobile %}<h2 class="contact-header"><span>Back to space details</span><br />Report a problem</h2>{% endif %}
 
-    <form action="/suggest/" method="post">{% csrf_token %}
+    <form action="/contact/{% if spot_id != '' %}{{ spot_id }}/{% endif %}" method="post">{% csrf_token %}
         <div class="fieldWrapper">
             {{ spot_name }}<br />
             {{ spot_description }}
@@ -17,12 +17,7 @@
                 </div>
             {% else %}
                 <div class="fieldWrapper">
-                    {% if field.field.required %}
-                       <label for="id_{{field.name}}">{{field.label}} <span class="required">*</span></label>
-                    {% else %}
-                        {{ field.label_tag }}
-                    {% endif %}
-                    {{ field }}
+                    {{ field.label_tag }}{{ field }}
                     {% for error in field.errors %}
                         <strong class="alert">{{ error|escape }}</strong>
                     {% endfor %}
@@ -31,5 +26,4 @@
         {% endfor %}
         <input type="submit" value="Send" />
     </form>
-    <span class="requiredtext">*Required</span>
 {% endblock %}

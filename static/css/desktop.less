@@ -1,3 +1,17 @@
+/*
+
+These styles are in palce for SPOT-494.  Feel free to move things around.
+
+*/
+
+.space-detail-no-image {
+    background: transparent url('../img/placeholder_noImage_bw.png') no-repeat 50% 50%; background-size: 150px;
+}
+
+.space-detail-no-image-full {
+    background: transparent url('../img/placeholder_noImage_bw.png') no-repeat 50% 50%; background-size: 100%;
+}
+
 /* Less Variables */
 
 @purple_text: #4c497e;
@@ -7,22 +21,7 @@
 @grey_background: #e5e5e5;
 @grey_medium: #6d6d6d;
 
-@nav_background: #7479a6;
-
-
-// retina.less
-// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
-
-.at2x(@path, @w: auto, @h: auto) {
-  background-image: e(%("url(%s)", @path));
-  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
-
-  @media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
-    background-image: e(%("url(%s)", @at2x_path));
-    background-size: @w @h;
-  }
-}
-
+@nav_background: #6564A8;
 
 /* start overriding the mobile styles */
 
@@ -43,6 +42,7 @@
 
          .location_container { float: left; margin: 6px 0 0 10px;
              #location_select {
+                 background-position: 95px 10px;
                  height: 30px;
                  padding: 4px 0 6px 12px;
                  width: 120px;
@@ -50,7 +50,7 @@
          }
 
          .user_context { line-height: 60px; background: transparent; color: #666; clear: none;
-             a  { padding-left: 12px; text-decoration: none; }
+             a  { padding-left: 5px; padding-right: 5px; text-decoration: none; }
          }
     }
 
@@ -58,7 +58,7 @@
     #bubble_desktop { margin: 0; display: block; float: right; height: 80px; margin-right: 15px; width: 40% }
     .bubble-inner { margin-top: 9px; height: 60px;
 
-      .bubble-tab { height: 17px; width: 8px; top: 22px; right: -8px; background: transparent url('/static/img/tri-right.png') no-repeat; }
+      .bubble-tab { height: 17px; width: 8px; top: 22px; right: -8px; background: transparent url('../img/tri-right.png') no-repeat; }
       .bubble-filters { width: 79%; height: 60px;
           ul { height: 56px; overflow: hidden; height: 56px; }
       }
@@ -82,7 +82,7 @@
             .inner-block-right { padding-left: 20px; }
         }
 
-        .inner-row { clear: both; margin-top: -20px;
+        .inner-row { clear: both; float: right; margin-top: -20px;
            .btn { margin-right: 16px; }
         }
 
@@ -95,7 +95,11 @@
     }
 }
 
-#main_content { margin: 0; }
+#main_content { margin: 0;
+    .actions { display: block; 
+        a img { position: absolute; margin-left: -36px; }
+    }
+}
 
 #map_canvas {
     width: 62%;
@@ -139,14 +143,14 @@
                                 }
                                 li a.active { color: @purple_text; }
                             }
-                            .carousel { margin: 0; background: #f8f8f8 url('/static/img/spinner.gif') no-repeat 50% 50%; background-size: 20px; min-height: 201px;
+                            .carousel { margin: 0; background: #f8f8f8 url('../img/spinner.gif') no-repeat 50% 50%; background-size: 20px; min-height: 201px;
 
                                 .carousel-inner-image { overflow: hidden; width: 100%; }
                                 .carousel-inner-image-inner { background-repeat: no-repeat !important; background-position: 50% 50% !important; width: 100%; }
                             }
                         }
 
-                        .map-container { background: #f8f8f8 url('/static/img/spinner.gif') no-repeat 50% 50%; background-size: 20px; }
+                        .map-container { background: #f8f8f8 url('../img/spinner.gif') no-repeat 50% 50%; background-size: 20px; }
 
                     }
                 }
@@ -190,19 +194,23 @@
                     button { border: solid 1px @grey_border !important; padding: 4px 7px; display: block; margin: 0; }
                     button.active { background-color: #fff; border-left: none !important; }
 
-                    #carouselControl span { background: transparent url('/static/img/gallery_grey.png') no-repeat 50% 50%; display: inline-block; text-indent: -9999px; width: 30px; height: 25px; }
-                    #carouselControl.active span { background: transparent url('/static/img/gallery_purple.png') no-repeat 50% 50%; width: 31px; }
+                    #carouselControl span { background: transparent url('../img/gallery_grey.png') no-repeat 50% 50%; display: inline-block; text-indent: -9999px; width: 30px; height: 25px; }
+                    #carouselControl.active span { background: transparent url('../img/gallery_purple.png') no-repeat 50% 50%; width: 31px; }
 
-                    #mapControl span { background: transparent url('/static/img/locate_grey.png') no-repeat 50% 50%; display: inline-block; text-indent: -9999px; width: 30px; height: 25px; }
-                    #mapControl.active span { background: transparent url('/static/img/locate_purple.png') no-repeat 50% 50%; width: 31px; }
+                    #mapControl span { background: transparent url('../img/locate_grey.png') no-repeat 50% 50%; display: inline-block; text-indent: -9999px; width: 30px; height: 25px; }
+                    #mapControl.active span { background: transparent url('../img/locate_purple.png') no-repeat 50% 50%; width: 31px; }
                 }
 
-                .space-detail-report { text-align:center;margin-top:20px;
+                .space-detail-share { padding-top: 10px;
+                   i { padding-right: 3px; }
+                   a { color: @purple_text; }
+                }
+
+                .space-detail-report { text-align:center;margin-top:20px; font-size: 13px; border-top: 1px dotted @grey_light; padding-top: 15px;
                     a, a:visited { vertical-align:bottom; color: @purple_text; }
                 }
-                .space-detail-footer { text-align: center; font-size: 12px; color: @grey_light; height: 50px; padding-top: 10px; }
 
-
+                .space-detail-footer { text-align: center; font-size: 11px; color: @grey_light; height: 50px; }
             }
         }
     }
@@ -226,7 +234,7 @@
             li {
                 .space-detail-list-item { width: 49%;
                 	.space-detail-labstats {
-                		background: transparent url('/static/img/comp-icon.png') no-repeat center top;
+                		background: transparent url('../img/comp-icon.png') no-repeat center top;
                 		margin-top:-2px;
                 		color: @grey_dark; font-size: 11px; text-transform: uppercase; display: inline-block; margin-left: 5px;
                 	   .computer-available { color:#20b420; }
@@ -240,7 +248,7 @@
                 button div { padding: 0 2px; }
             }
 
-            li.selected { background: #6160a2 url('/static/img/list_item_selected.png') bottom repeat-x;
+            li.selected { background: #6160a2 url('../img/list_item_selected.png') bottom repeat-x;
                 .space-detail-type { color: #ccc; display: block; }
                 .space-detail-desc,.space-detail-name { color: #fff; }
             }
@@ -263,7 +271,7 @@
 
 .requiredtext { color: red; font-size: 10px; }
 
-.alert { font-weight: normal; margin-left: 1em; vertical-align: super; }
+.alert { }
 
 @media screen and (min-width: 1024px) {
 
@@ -290,7 +298,6 @@
 
                     .space-detail-header {
                         .space-detail-fav { font-size: 20px; margin-right: 5px;}
-                        .space-detail-fav-set { color: #E5B52E; }
                     }
 
                     .space-detail-body {
@@ -310,18 +317,32 @@
 
 /* Favorites */
 
-#nav.favorites_nav {
+.favorites-header { width: 100%; height:5px; background-color: @nav_background;
+    span {
+       float:right;
+       margin: -16px 110px 0 0;
+       width: 0; height: 0;
+       border-left: 8px solid transparent;
+       border-right: 8px solid transparent;
+       border-bottom: 16px solid @nav_background;
+    }
+}
 
-    .favorites-header { width: 100%; height: 12px; background-color: @nav_background;
-        span {
-           float:right;
-           margin: -16px 110px 0 0;
-           width: 0; height: 0;
-           border-left: 16px solid transparent;
-           border-right: 16px solid transparent;
-           border-bottom: 16px solid @nav_background;
+.favorites {
+    .footer { clear: both; padding: 20px 20px; }
+}
+
+/*
+This is patrick's attempt @ @2x:
+*/
+
+@media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
+    #nav {
+        .logo-container {
+            .logo {
+                background-image: url('../img/spacescout_logo@2x.png')
+            }
         }
     }
-
-     .footer { clear: both; padding: 20px 20px; }
 }
+

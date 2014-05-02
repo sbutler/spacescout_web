@@ -12,7 +12,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 """
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
+from django.conf import settings
 
 js_info_dict = {
     'packages': ('spacescout_web',),
@@ -22,17 +23,18 @@ urlpatterns = patterns('spacescout_web.views',
     url(r'^$', 'home.HomeView'),
     url(r'login$', 'auth.Prompt'),
     url(r'authenticate$', 'auth.Login'),
-    url(r'logout$', 'auth.Logout'),
-    url(r'api/v1/user/me/favorites/?$', 'favorites.API'),
-    url(r'api/v1/user/me/favorite/(?P<spot_id>\d+)$', 'favorites.API'),
+    url(r'^logout$', 'auth.Logout'),
+    url(r'web_api/v1/user/me/favorites/?$', 'favorites.API'),
+    url(r'web_api/v1/user/me/favorite/(?P<spot_id>\d+)$', 'favorites.API'),
+    url(r'web_api/v1/directory/$', 'directory.API'),
     url(r'buildings?$', 'buildings.buildings'),
     url(r'search/$', 'search.SearchView'),
     url(r'suggest/$', 'suggest.suggest', name="suggest-form"),
     url(r'contact(?:/(?P<spot_id>\d+))?/$', 'contact.contact'),
+    url(r'share/(?P<spot_id>\d+)$', 'share.share', name="share-form"),
     url(r'sorry(?:/(?P<spot_id>\d+))?/$', 'contact.sorry'),
     url(r'thankyou(?:/(?P<spot_id>\d+))?/$', 'contact.thank_you'),
-    url(r'favorites?$', 'favorites.FavoritesView'),
-    url(r'space/(?P<spot_id>\d+)/$', 'spot.SpotView'),
+    url(r'^favorites?$', 'favorites.FavoritesView'),
     url(r'space/(?P<spot_id>\d+)/json/$', 'spot.SpotView', {'return_json': True}),
     url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/width:(?P<thumb_width>\d+)(?:,height:(?P<thumb_height>\d+))?$', 'image.ImageView', {'constrain': True}),
     url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/height:(?P<thumb_height>\d+)(?:,width:(?P<thumb_width>\d+))?$', 'image.ImageView', {'constrain': True}),
@@ -40,5 +42,14 @@ urlpatterns = patterns('spacescout_web.views',
     url(r'images/(?P<image_ids>[\d,]+)/thumb/constrain/width:(?P<thumb_width>\d+)(?:,height:(?P<thumb_height>\d+))?$', 'image.MultiImageView', {'constrain': True}),
 )
 
-urlpatterns += patterns('', url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),)
+urlpatterns += patterns('',
+                        url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+                        )
+
+urlpatterns += patterns('spacescout_web.views',
+                        url(r'^space/\d+/.*$', 'home.HomeView'))
+
+for key in settings.SS_LOCATIONS:
+    urlpatterns += patterns('spacescout_web.views',
+                            url(r'^'+key+'.*$', 'home.HomeView'))
 

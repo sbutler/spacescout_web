@@ -1,7 +1,10 @@
-{% extends "base-mobile.html" %}
+{% extends "spacescout_web/base-mobile.html" %}
 
 {% block extra_compress_css %}
+{% load compress %}
+{% compress css %}
 <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites.less" media="screen, handheld" />
+{% endcompress %}
 {% endblock %}
 
 {% block extra_css %}
@@ -9,6 +12,7 @@
 
 {% block extra_js %}
 <script type="text/javascript">
+    window.spacescout_referrer = '{{ back }}';
     $.ajaxSetup({
         headers: { "X-CSRFToken": '{{ csrf_token }}' }
     });
@@ -40,8 +44,8 @@
            <div class="user_context">
               {% if user.is_authenticated %}
                 <span class="salutation">{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
-                <a href="/">{% trans 'favorites' %} (<span class="favorites_count_container">{{ total }}</span>)</a>
-                {% tplhandlebars "favorites_count" %}{{count}}{% endtplhandlebars %}
+                <a href="/">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
+                {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
                 <span>|</span>
                 <a href="logout?next=/">{% trans 'logout' %}</a>
               {% else %}
@@ -56,19 +60,9 @@
             <a href="/">Back to Map</a>
           </div>
 
-          <h2>Favorites</h2>
+          <h2 class="page-title">Favorites</h2>
           <h4><span class="favorites_count_container">{{ total }}</span> favorite spaces <span class="comment">(listed by the date you added)</span></h4>
-          <div id="space_details_page" class="favorites_card_container">
-            {% include "favorites-card.html" %}
-            <div id="space-detail-blank" class="space-detail-container">
-                <div class="space-detail">
-                    <div class="space-detail-inner">
-                      <i class="fa fa-heart fa-4x"></i>Your next favorite space will be here.
-                      <br /><a href="/">Go to space list</a>
-                    </div>
-                </div>
-            </div>
-          </div>
+          <div id="space_details_page" class="favorites_card_container favorites_blank_container"></div>
 
           <div class="footer">
             <span>Any favorite space is missing? </span><a href="#">Go to FAQ</a>
@@ -76,6 +70,22 @@
         </div>
     </div>
 
+{% tplhandlebars "campus_label" %}
+<h3 class="group">{{ campus }}</h3>
+{% endtplhandlebars %}
+
+{% tplhandlebars "blank_card" %}
+<div id="space-detail-blank" class="space-detail-container">
+    <div class="space-detail">
+        <div class="space-detail-inner">
+          <i class="fa fa-heart fa-4x"></i>Your next favorite space will be here.
+          <br /><a href="/">Go to space list</a>
+        </div>
+    </div>
+</div>
+{% endtplhandlebars %}
+
+{% include "spacescout_web/favorites-card.html" %}
 
 {% if user.is_authenticated %}
 <script type="text/javascript">
