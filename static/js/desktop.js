@@ -96,7 +96,7 @@
 
 
         // handle view details click
-        $('.view-details').live('click', function(e){
+        $('.view-details').on('click', function(e){
 
             // get the space id
             var id =  $(this).find('.space-detail-list-item').attr('id');
@@ -121,7 +121,7 @@
 
         });
 
-        $('.space-detail-container .close').live('click', function(e) {
+        $('.space-detail-container .close').on('click', function(e) {
             e.preventDefault();
             closeSpaceDetails();
         });
