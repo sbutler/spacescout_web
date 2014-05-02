@@ -435,7 +435,7 @@ var requests = [];
         });
 
         // handle clicking on map centering buttons
-        $('#center_all').live('click', function (e) {
+        $('#center_all').on('click', function (e) {
             e.preventDefault();
             if (window.spacescout_map.getZoom() != window.default_zoom) {
                 window.spacescout_map.setZoom(parseInt(window.default_zoom));
