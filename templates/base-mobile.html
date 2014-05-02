@@ -20,7 +20,7 @@
 
   sbutler1@illinois.edu: div to fieldsets where appropriate; proper
   	nesting of ol lists; HTTPS for external resources; use
-	<label for=>; alt attrs galore.
+	<label for=>; alt attrs galore; open_anytime.
 
 -->
 <html lang="en">
@@ -29,7 +29,7 @@
         <title>SpaceScout&trade; Find the Perfect Place to Study</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<meta name="description" content="Searching for that perfect study spot? SpaceScout helps UW students quickly locate campus spaces and resources to use for study or collaboration">
+		<meta name="description" content="Searching for that perfect study spot? IlliniSpaces helps University of Illinois students quickly locate campus spaces and resources to use for study or collaboration">
         {% if show_ios_smart_banner %}
         <meta name="apple-itunes-app" content="app-id=551472160">
         {% endif %}
@@ -96,8 +96,7 @@
               </div>
 
               <div id="footer" class="clearfix" role="contentinfo">
-                  <div class="pull-left copyright">Copyright &copy; 2012 &nbsp;&nbsp;&nbsp;<a href="http://www.washington.edu/online/privacy/" target="_blank">Privacy</a> | <a href="http://www.washington.edu/online/terms/" target="_blank">Terms</a> | <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/" title="About SpaceScout" target="_blank">About</a><br/>Academic and Collaborative Applications, UW-IT</div>
-                  <div class="pull-left partners">Brought to you by UW-IT in partnership with Housing and Food Services, UW Libraries, UW Computing Directors, and partially funded by the Student Technology Fee</div>
+                  <div class="pull-left copyright">Copyright &copy; 2012 &nbsp;&nbsp;&nbsp;<a href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm" target="_blank">Privacy &amp; Terms</a> | <a href="about:blank" title="About IlliniSpaces" target="_blank">About</a><br/>Academic and Collaborative Applications, UW-IT</div>
               </div>
           </div>
 
@@ -129,6 +128,7 @@
             <script type="text/javascript" src="{{ STATIC_URL }}js/clustering.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/retina.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/analytics.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/uiuc.js"></script>
 
 
             {% if spaces %}
