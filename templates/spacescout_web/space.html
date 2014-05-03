@@ -53,7 +53,7 @@
         <h1 class="visuallyhidden">SPACESCOUT&trade;</h1>
 		<img id="back_home_button" class="pull-left back-button" src="{% static 'img/details_arrow.png' %}" />
         <div id="name-type-block" class="pull-left">
-          {% if false and user.is_authenticated %}<div class="space-detail-fav pull-left"><i class="fa fa-heart"></i></div>{% endif %}
+          {% if user.is_authenticated %}<div class="space-detail-fav space-detail-fav-unset pull-left"><i class="fa fa-heart-o"></i></div>{% endif %}
           <h2 class="space-detail-name" style=""><span class="visuallyhidden">Space Details:</span> {{name}}</h2>
       	  <div class="space-detail-type">{{ type }} {% if capacity %}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{% endif %}</div>
         </div>
@@ -198,7 +198,7 @@
                         <div class="space-detail-report">
                             <a href="/contact/{{ id }}/">Report a problem with this space</a>
                         </div>
-                        <div class="space-detail-footer">This space was last updated on {{last_modified}} by<br/> {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
+                        <div class="space-detail-footer">This space was last updated on {{last_modified}} by<br/> {% if organization %}{{ organization }}{%else%}University of Washington Information Technology{% endif %}</div>
                     </div>
                 </div>
             </div>

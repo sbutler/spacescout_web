@@ -20,7 +20,7 @@
 
   sbutler1@illinois.edu: div to fieldsets where appropriate; proper
   	nesting of ol lists; HTTPS for external resources; use
-	<label for=>; alt attrs galore; open_anytime.
+	<label for=>; alt attrs galore.
 -->
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -91,10 +91,10 @@
               {% block content %}{% endblock %}
 
               <div id="footer" class="clearfix" role="contentinfo">
-                  <div class="pull-left copyright"><a href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm" target="_blank">Privacyi &amp; Terms</a> | <a href="about:blank" title="About IlliniSpaces" target="_blank">About</a><br />Copyright &copy; 2012 &nbsp;Academic and Collaborative Applications, UW-IT</div>
+                  <div class="pull-left copyright"><a href="http://www.washington.edu/online/privacy/" target="_blank">Privacy</a> | <a href="http://www.washington.edu/online/terms/" target="_blank">Terms</a> | <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/" title="About SpaceScout" target="_blank">About</a><br />Copyright &copy; 2012 &nbsp;Academic and Collaborative Applications, UW-IT</div>
                   <div class="pull-right suggest">Can't find one? <a href="{% url 'suggest-form' %}">Suggest a space</a></div>
+                  <div class="pull-left partners">Brought to you by UW-IT in partnership with Housing and Food Services, UW Libraries, UW Computing Directors, and partially funded by the Student Technology Fee</div>
               </div>
-            
           </div>
 
           <!-- jQuery -->
@@ -131,7 +131,6 @@
             <script type="text/javascript" src="{{ STATIC_URL }}js/desktop.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/clustering.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/analytics.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}js/uiuc.js"></script>
             {% endcompress %}
 
 

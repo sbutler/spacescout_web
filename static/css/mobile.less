@@ -6,7 +6,6 @@
 @grey_border: #d6d6d6;
 @grey_background: #f9f9f9;
 @grey_medium: #aaa;
-@uofi_blue_background: #1c3764; 
 
 @nav_background: #6564A8;
 
@@ -75,9 +74,9 @@ width: 100px;
 
     .logo-container {
 
-        .logo { height: 75px; line-height: 70px; width: 200px; float:left; position: relative;
-            .at2x('/static/img/space_finder_logo_mobile.png', 179px, 60px);
-            background-size: 179px 60px;
+        .logo { height: 44px; width: 200px; float:left; position: relative;
+            background-image: url('../img/spacescout_logo.png');
+            background-size: 189px 30px;
             background-repeat: no-repeat;
             background-position: 10px 50%;
 
@@ -153,7 +152,7 @@ width: 100px;
 
         .choice-group { border: none; /*border: solid 1px rgba(241,241,12,0.3);*/ margin: 0 0 20px 0; padding: 0;
             .checkbox.inline { margin-left: 0; margin-right: 10px; }
-            label.inline { display: inline-block; color: #ddd;}
+            label.inline { display: inline-block; }
             .small-text {font-size: 80%;}
         }
 
@@ -488,9 +487,9 @@ div.actions { display: none; }
                 						p {margin:0; margin-left:20px; margin-top: -1px; font-weight: bold;}
                 	}
 
-                    .space-detail-capacity { color: @grey_light; font-size: 12px; display: inline-block; line-height: 13px;}
+                    .space-detail-capacity { color: @grey_light; font-size: 12px; display: inline-block; height: 20px; line-height: 13px;}
                     .space-detail-type-label { color: @grey_light; display: inline-block; width: 55%; .wrap; line-height: 13px; font-size:12px;}
-                    .space-detail-type { color: @grey_dark; font-size: 13px; margin-top: 5px; }
+                    .space-detail-type { color: @grey_dark; font-size: 13px; }
                     .space-detail-name { font-size: 16px; line-height: 20px; padding-top: 2px; .wrap; color: #000; }
                     .space-detail-desc { font-size: 13px; .wrap; color: #000; }
                 }
@@ -513,12 +512,10 @@ div.actions { display: none; }
 }
 
 
-#footer { margin: 15px 10px 10px 10px; font-size: 11px; line-height: 14px; 
+#footer { margin: 15px 10px 10px 10px; font-size: 11px; line-height: 14px; background: url('../img/w.png') no-repeat;
 
-    .copyright { margin-left: 45px; margin-bottom: 10px; font-size: .5em;}
+    .copyright { margin-left: 45px; margin-bottom: 10px; }
     .partners { margin-left: 45px; color: #aaa; }
-	.logo {margin: 10px;}
-	
 }
 
 .loading { position: relative; width: 200px; left:50%; margin-left: -100px;
