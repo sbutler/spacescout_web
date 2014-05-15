@@ -43,4 +43,8 @@
             delete args.open_now;
     } );
 
+    $(document).on( 'desktop_afterShowSpaceDetailsData', function (event, data) {
+        data.has_notes = data.has_notes || data.extended_info.reservation_url;
+    } );
+
 })(jQuery);

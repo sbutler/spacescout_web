@@ -146,6 +146,9 @@
     // Show space details (sliding transition)
     function _showSpaceDetails(data) {
         // format last modified date
+
+        $.event.trigger('desktop_beforeShowSpaceDetailsData', data);
+
         var last_mod= new Date(data["last_modified"]);
         var month = last_mod.getMonth();
         var day = last_mod.getDate();
@@ -155,6 +158,8 @@
         // check to see if the space has the following
         data["has_notes"] = ( data.extended_info.access_notes || data.extended_info.reservation_notes );
         data["has_resources"] = ( data.extended_info.has_computers || data.extended_info.has_displays || data.extended_info.has_outlets || data.extended_info.has_printing || data.extended_info.has_projector || data.extended_info.has_scanner || data.extended_info.has_whiteboards );
+
+        $.event.trigger('desktop_afterShowSpaceDetailsData', data);
 
         // remove any open details
         var open = $('.space-detail-container').is(':visible');
