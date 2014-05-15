@@ -95,11 +95,12 @@
                         <div class="space-info">
                             <ul>
 
-                                {% if extended_info.access_notes or extended_info.reservation_notes %}
+                                {% if extended_info.access_notes or extended_info.reservation_url or extended_info.reservation_notes %}
                                 <li class="clearfix">
                                     <h3 class="space-info-label pull-left">Notes</h3>
                                     <div class="space-info-detail pull-left">
                                         {% if extended_info.access_notes %}<p>{{extended_info.access_notes }}</p>{% endif %}
+                                        {% if extended_info.reservation_url %}<p class="reservation-link"><a href="{{ extended_info.reservation_url }}">Make a reservation</a></p>{% endif %}
                                         {% if extended_info.reservation_notes %}<p id="ei_reservation_notes">{{extended_info.reservation_notes }}</p>{% endif %}
                                     </div>
                                 </li>
