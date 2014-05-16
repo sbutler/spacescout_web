@@ -19,7 +19,13 @@
 */
 
 // $ = jQuery
-(function ($) {
+(function ($, H) {
+    H.registerHelper( 'if_even', function (idx, options) {
+        if (parseInt( idx ) % 2 === 0)
+            return options.fn( this );
+        else
+            return options.inverse( this );
+    } );
     
     /* Populate the filter box with saved search options. */
     $(document).on( 'search_afterRepopulateFilters', function (event, filter_opts) {
@@ -47,4 +53,4 @@
         data.has_notes = data.has_notes || data.extended_info.reservation_url;
     } );
 
-})(jQuery);
+})(jQuery, Handlebars);
