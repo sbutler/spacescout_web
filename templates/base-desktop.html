@@ -28,18 +28,20 @@
 <!--[if gt IE 8]><!--><html class="no-js"> <!--<![endif]-->
 
     <head>
-        <title>SpaceScout&trade; Find the Perfect Place to Study</title>
+        <title>Illini Spaces &trade; Find the Perfect Place to Study</title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<meta name="description" content="Searching for that perfect study spot? SpaceScout helps UW students quickly locate campus spaces and resources to use for study or collaboration">
+		<meta name="description" content="Searching for that perfect study spot? Illini Spaces helps University of Illinois students quickly locate campus spaces and resources to use for study or collaboration">
         {% load compress %}
         {% compress css %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap.min.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
 		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/font-awesome.min.css" charset="utf-8" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile.less" media="screen" />
+        <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile-uiuc.less" media="screen" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/desktop.less" media="screen" />
+        <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/desktop-uiuc.less" media="screen" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/chosen.css" media="screen" />
         {% block extra_compress_css %}{% endblock %}
         {% endcompress %}
@@ -86,7 +88,12 @@
               {% block content %}{% endblock %}
 
               <div id="footer" class="clearfix" role="contentinfo">
-                  <div class="pull-left copyright"><a href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm" target="_blank">Privacyi &amp; Terms</a> | <a href="about:blank" title="About IlliniSpaces" target="_blank">About</a><br />Copyright &copy; 2012 &nbsp;Academic and Collaborative Applications, UW-IT</div>
+                  <div class="pull-left copyright">
+                      <a href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm" target="_blank">Privacy &amp; Terms</a> |
+                      <a href="about:blank" title="About Illini Spaces" target="_blank">About</a><br />
+                      Copyright &copy; 2012 Academic and Collaborative Applications, UW-IT<br/>
+                      Parts Copyright &copy; University of Illinois Board of Trustees
+                  </div>
                   <div class="pull-right suggest">Can't find one? <a href="{% url suggest-form %}">Suggest a space</a></div>
               </div>
             

@@ -1,0 +1,250 @@
+@uiuc_blue_dark: #0062ae;
+@uiuc_blue: #4594cd;
+@uiuc_blue_light: #e4f1fa;
+@uiuc_green: #48b128;
+
+// retina.less
+// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
+.at2x(@path, @w: auto, @h: auto) {
+  background-image: e(%("url(%s)", @path));
+  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
+
+  @media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
+    background-image: e(%("url(%s)", @at2x_path));
+    background-size: @w @h;
+  }
+}
+
+body {
+    background-color: white;
+}
+
+#nav {
+
+    .logo-container {
+        
+        .logo {
+            .at2x('/static/img/uiuc_logo.png', 189px, 30px);
+        }
+    }
+
+    .user_context {
+        background-color: white;
+    }
+
+    .filter_context {
+        color: white;
+        background-color: @uiuc_blue;
+
+        button {
+            background-color: @uiuc_green;
+        }
+    }
+}
+
+#filter_container {
+
+    #filter_block {
+        color: black;
+        background-color: white;
+        border: solid 2px @uiuc_green;
+
+        em {
+            color: inherit;
+        }
+
+        fieldset {
+
+            legend {
+                border-top: none;
+                color: @uiuc_green;
+                margin-bottom: 10px;
+            }
+
+            fieldset legend {
+                color: black;
+            }
+        }
+
+        #filter_restricted_access {
+            font-size: smaller;
+            font-style: italic;
+        }
+
+        #view_results_button {
+            background-color: @uiuc_green;
+        }
+
+        .selected {
+            color: inherit;
+            font-style: italic;
+        }
+    }
+}
+
+#filter-clear {
+    color: white;
+    border: solid 1px @uiuc_blue;
+    background-color: @uiuc_blue_dark;
+}
+
+#info_list {
+
+    .list-inner {
+        border: none;
+    }
+
+    /* list of spaces */
+    #info_items {
+
+        > ol {
+
+            > li {
+                margin: 7px;
+            }
+        }
+
+        ol {
+
+            .building_header {
+                border-top: none;
+                background-color: @uiuc_blue_dark;
+                color: white;
+                margin: 0;
+                font-size: small;
+            }
+
+            li ol {
+                border-top: solid 1px @uiuc_blue;
+                border-right: solid 1px @uiuc_blue;
+                border-left: solid 1px @uiuc_blue;
+
+                li {
+                    border: none;
+                    border-bottom: solid 1px @uiuc_blue;
+                    padding: 5px;
+
+                    .space-detail-list-image {
+                        width: 80px;
+                        height: 80px;
+
+                        .img {
+                            width: 80px;
+                        }
+
+                        .space-detail-list-image-inner {
+                            width: 80px;
+                            height: 80px;
+                        }
+                    }
+
+                    .space-detail-list-item {
+                        font-size: small;
+                        line-height: 100%;
+
+                        .space-detail-name {
+                            font-size: larger;
+                            font-weight: bold;
+                            line-height: inherit;
+                            color: inherit;
+
+                            padding-left: 10px;
+                            text-indent: -10px;
+                        }
+
+                        .space-detail-type-label {
+                            color: inherit;
+                            display: block;
+                            width: auto !important;
+                            height: auto !important;
+                            font-size: inherit;
+                            line-height: inherit;
+
+                            padding-left: 10px;
+                            text-indent: -10px;
+                        }
+
+                        .space-detail-capacity {
+                            color: inherit;
+                            display: block;
+                            width: auto !important;
+                            height: auto !important;
+                            font-size: inherit;
+                            line-height: inherit;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.back-top {
+
+    #top_link {
+        background: @uiuc_blue_dark;
+        color: @uiuc_blue_light;
+    }
+}
+
+#space_details_header {
+
+    .space-detail-name {
+        color: @uiuc_blue_dark;
+    }
+}
+
+#space_details_page {
+
+    .space-detail-container {
+
+        .space-detail {
+
+            .space-detail-inner {
+
+                .space-info-header {
+                    color: @uiuc_blue_dark;
+                }
+
+                .space-image-map-buttons {
+
+                    #carouselControl.active span {
+                        background-image: url('/static/img/uiuc_gallery_active.png');
+                    }
+
+                    #mapControl.active span {
+                        background-image: url('/static/img/uiuc_locate_active.png');
+                    }
+                }
+
+                .space-detail-body {
+
+                    .space-detail-body-inner {
+
+                        .image-container {
+
+                            .carousel-nav {
+
+                                li a.active {
+                                    color: @uiuc_blue_dark;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .space-detail-report {
+                    
+                    a, a:visited {
+                        color: @uiuc_blue;
+                    }
+                }
+            }
+        }
+    }
+}
+
+#footer {
+    background-image: url('/static/img/IMark_26.gif');
+    background-position: left center;
+}

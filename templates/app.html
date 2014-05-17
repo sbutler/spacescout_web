@@ -49,7 +49,7 @@
         <div class="logo-container clearfix">
 
             <div class="logo">
-                <h1 id="app_header" class="visuallyhidden">SPACESCOUT&trade;</h1>
+                <h1 id="app_header" class="visuallyhidden">Illini Spaces &trade;</h1>
             </div>
             <div class="location_container">
                 {% ifnotequal locations|length 1 %}
@@ -101,15 +101,15 @@
                </div>
              </div>
              <div class="inner-row">
-               <button id="view_results_button" class="btn" type="button" aria-label="Apply Filters">Apply</button>
                <button id="cancel_results_button" class="btn" type="button" aria-label="Clear Filters">Reset</button>
+               <button id="view_results_button" class="btn" type="button" aria-label="Apply Filters">Apply</button>
              </div>
            </div>
          </div>
        </form>
     </div>
     <div id="main_content" class="clearfix" role="main" aria-labelledby="app_header">
-<h2 id="map_header" class="visuallyhidden" aria-hidden="true">Map of Spaces</h2>
+        <h2 id="map_header" class="visuallyhidden" aria-hidden="true">Map of Spaces</h2>
         <div id="map_canvas" aria-labelledby="map_header" aria-hidden="true"></div>
         {% tplhandlebars "map_controls" %}
             <div class="map-control-container">
@@ -264,7 +264,7 @@
                                 </div>
 
                                 <div class="space-detail-report">
-                                    <a href="/contact/{{ id }}/"><img alt="" src="/static/img/mail.png" />&nbsp;Report a problem with this space</a>
+                                    <a href="/contact/{{ id }}/"><img alt="" src="/static/img/uiuc_mail.png" />&nbsp;Report a problem with this space</a>
                                 </div>
 
                                 <div class="space-detail-footer">This space was last updated on {{last_modified}} by<br/> {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
@@ -294,7 +294,7 @@
                 <!-- space list start -->
 			    <li><h3 class="building_header">{{this.name}}</h3>
                             <ol>{{#each this.spots}}
-                            <li class="clearfix view-details">
+                                <li class="clearfix view-details">
                                 <div class="space-detail-list-image pull-left">
                                     {{#if images.0.id}}
                                     <div class="space-detail-list-image-inner lazyloader" data-src="space/{{id}}/image/{{images.0.id}}/thumb/constrain/width:150">&nbsp;</div>
@@ -308,8 +308,10 @@
                                     {% if false and user.is_authenticated %}<div class="space-detail-fav pull-right" style="display: none;"><i class="fa fa-heart"></i></div>{% endif %}
                                     <div class="space-detail-name">{{name}}</div>
                                     <div class="space-detail-desc">{{extended_info.location_description}}</div>
+                                    <div class="space-detail-type-label">{{type}}</div>
+                                    <div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>
+
                                     <div class="space-detail-type clearfix">
-                                    	<span class="space-detail-type-label pull-left">{{type}}</span>
                                         {{#if extended_info.labstats_id}}
                                             {{#if extended_info.auto_labstats_total}}
                                                 {{#compare extended_info.auto_labstats_total 0 operator="!="}}
@@ -318,14 +320,8 @@
                                                     {{^}}
                                                         <div class="space-detail-labstats pull-right"><p><span class="computer-notavailable">{{extended_info.auto_labstats_available}}</span>/{{extended_info.auto_labstats_total}}</p></div>
                                                     {{/compare}}
-                                                {{^}}
-                                                    <span class="space-detail-capacity pull-right">{{#if capacity }}Seats&nbsp;{{capacity}}{{/if}}</span>
                                                 {{/compare}}
-                                            {{else}}
-                                                <span class="space-detail-capacity pull-right">{{#if capacity }}Seats&nbsp;{{capacity}}{{/if}}</span>
                                             {{/if}}
-                                        {{else}}
-                                           <span class="space-detail-capacity pull-right">{{#if capacity }}Seats&nbsp;{{capacity}}{{/if}}</span>
                                         {{/if}}
                                     </div>
                                 </button>

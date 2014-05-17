@@ -1,100 +1,120 @@
 {% load i18n %}
 {% load templatetag_handlebars %}
-<fieldset class="choice-group">
-   <legend>Type &amp; Capacity</legend>
-   <p><span class="small-text"><em>Select preferred types of space, if any:</em></span></p>
-   <fieldset id="filter_space_types" class="choice-group clearfix">
-       <legend id="filter_space_types_header">Type of space:</legend>
-       <div style="width:auto;float:left; margin-right: 15px;">
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="study_room" value="study_room">
-              <label class="inline" for="study_room">{% trans 'study_room' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="study_area" value="study_area">
-              <label class="inline" for="study_area">{% trans 'study_area' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="computer_lab" value="computer_lab">
-              <label class="inline" for="computer_lab">{% trans 'computer_lab' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="studio" value="studio">
-              <label class="inline" for="studio">{% trans 'studio' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="classroom" value="classroom">
-              <label class="inline" for="classroom">{% trans 'classroom' %}</label>
-           </span>
-       </div>
+<fieldset id="filter_space_types" class="choice-group clearfix">
+    <legend id="filter_space_types_header">Type of Space</legend>
 
-       <div style="width:auto;float:left">
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="open" value="open">
-              <label class="inline" for="open">{% trans 'open' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="lounge" value="lounge">
-              <label class="inline" for="lounge">{% trans 'lounge' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="cafe" value="cafe">
-              <label class="inline" for="cafe">{% trans 'cafe' %}</label>
-           </span>
-           <span class="checkbox">
-              <input type="checkbox" name="type" id="outdoor" value="outdoor">
-              <label class="inline" for="outdoor">{% trans 'outdoor' %}</label>
-           </span>
-       </div>
-   </fieldset>
-   <fieldset id="filter_reservability" class="choice-group">
-      <legend id="filter_reservability_header">Reservability:</legend>
-       <span class="checkbox inline">
-          <input type="checkbox" id="reservable" value="true">
-          <label class="inline" for="reservable">Show reservable spaces only</label>
-       </span>
-   </fieldset>
-   <fieldset id="filter_capacity" class="choice-group">
-       <legend id="filter_capacity_header">Capacity</legend>
-       <label class="inline" for="capacity">Seats at least:</label>
-       <select id="capacity" style="width:60px;">
-         <option value="1">1</option>
-         <option value="2">2</option>
-         <option value="3">3</option>
-         <option value="4">4</option>
-         <option value="5">5</option>
-         <option value="6">6</option>
-         <option value="7">7</option>
-         <option value="8">8</option>
-         <option value="9">9</option>
-         <option value="10">10</option>
-         <option value="15">15</option>
-         <option value="20">20</option>
-         <option value="25">25+</option>
-       </select>
-   </fieldset>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="study_room" value="study_room">
+        <label class="inline" for="study_room">{% trans 'study_room' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="study_area" value="study_area">
+        <label class="inline" for="study_area">{% trans 'study_area' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="computer_lab" value="computer_lab">
+        <label class="inline" for="computer_lab">{% trans 'computer_lab' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="studio" value="studio">
+        <label class="inline" for="studio">{% trans 'studio' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="classroom" value="classroom">
+        <label class="inline" for="classroom">{% trans 'classroom' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="open" value="open">
+        <label class="inline" for="open">{% trans 'open' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="lounge" value="lounge">
+        <label class="inline" for="lounge">{% trans 'lounge' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="cafe" value="cafe">
+        <label class="inline" for="cafe">{% trans 'cafe' %}</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" name="type" id="outdoor" value="outdoor">
+        <label class="inline" for="outdoor">{% trans 'outdoor' %}</label>
+    </div>
 </fieldset>
+</div></div> <!-- inner-column, inner-block-left -->
 
-</div>
-</div>
+<div class="inner-column"><div class="inner-block-left">
+<fieldset id="filter_equipment_types" class="choice-group" style="margin-bottom:0px;">
+    <legend id="filter_equipment_types_header">Has Resources</legend>
+
+    <div class="checkbox">
+        <input type="checkbox" id="has_whiteboards" name="equipment" value="has_whiteboards">
+        <label class="inline" for="has_whiteboards">Whiteboard</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_outlets" name="equipment" value="has_outlets">
+        <label class="inline" for="has_outlets">Outlets</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_computers" name="equipment" value="has_computers">
+        <label class="inline" for="has_computers">Computer</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_scanner" name="equipment" value="has_scanner">
+        <label class="inline" for="has_scanner">Scanning</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_displays" name="equipment" value="has_displays">
+        <label class="inline" for="has_displays">Large display (for laptop)</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_projector" name="equipment" value="has_projector">
+        <label class="inline" for="has_projector">Projector</label>
+    </div>
+    <div class="checkbox">
+        <input type="checkbox" id="has_printing" name="equipment" value="has_printing">
+        <label class="inline" for="has_printing">Printing</label>
+    </div>
+</fieldset>
+</div></div>
+
 <div class="inner-column">
+<fieldset id="filter_location" class="choice-group">
+    <legend id="filter_location_header">Location</legend>
+    <div>
+        <div class="radio">
+            <input type="radio" name="optionsLocations" id="entire_campus" value="entire_campus" checked>
+            <label class="inline" for="entire_campus">Entire campus</label>
+        </div>
+        <div class="radio">
+            <input type="radio" name="optionsLocations" id="building_list_input" value="building_list">
+            <label class="inline" for="building_list_input">Specific buildings</label>
+        </div>
+    </div>
+
+    <div id="building_list_container" style="margin-top:8px;display:none;"></div>
+        {% tplhandlebars "building_list" %}
+        <label class="visuallyhidden" for="e9">Choose a building:</label>
+        <select data-placeholder="Select building(s)" class="building-location chzn-select" name="e9" id="e9" multiple>
+            {{#alphaOptGroupsHTML data}}{{/alphaOptGroupsHTML}}
+        </select>
+        {% endtplhandlebars %}
+</fieldset>
 
 <fieldset id="filter_hours" class="choice-group">
     <legend id="filter_hours_header">Hours</legend>
-    <p id="open_hours_header"><span class="small-text"><em>Select open hours</em></span></p>
     <div>
-        <span class="radio inline">
+        <div class="radio">
             <input type="radio" name="optionsHours" id="open_now" value="open_now" checked>
             <label class="inline" for="open_now">Open now</label>
-        </span>
-        <span class="radio inline">
+        </div>
+        <div class="radio">
             <input type="radio" name="optionsHours" id="open_anytime" value="open_anytime">
             <label class="inline" for="open_anytime">Any time</label>
-        </span>
-        <span class="radio inline">
+        </div>
+        <div class="radio">
             <input type="radio" name="optionsHours" id="hours_list_input" value="hours_list">
             <label class="inline" for="hours_list_input">Specify day &amp; time</label>
-        </span>
+        </div>
     </div>
 
     <div id="hours_list_container" style="margin-top:8px; display:none; " aria-labelledby="from-time-heading">
@@ -192,82 +212,44 @@
     </div>
 </fieldset>
 
-<fieldset id="filter_location" class="choice-group">
-    <legend id="filter_location_header">Location</legend>
-    <div>
-        <span class="radio inline">
-            <input type="radio" name="optionsLocations" id="entire_campus" value="entire_campus" checked>
-            <label class="inline" for="entire_campus">Entire campus</label>
-        </span>
-        <span class="radio inline">
-            <input type="radio" name="optionsLocations" id="building_list_input" value="building_list">
-            <label class="inline" for="building_list_input">Specific buildings</label>
-        </span>
-    </div>
-    <div id="building_list_container" style="margin-top:8px;display:none;"></div>
-        {% tplhandlebars "building_list" %}
-        <label class="visuallyhidden" for="e9">Choose a building:</label>
-        <select data-placeholder="Select building(s)" class="building-location chzn-select" name="e9" id="e9" multiple>
-            {{#alphaOptGroupsHTML data}}{{/alphaOptGroupsHTML}}
-        </select>
-        {% endtplhandlebars %}
-</fieldset>
-
-<fieldset id="filter_equipment_types" class="choice-group" style="margin-bottom:0px;">
-    <legend id="filter_equipment_types_header">Resources</legend>
-    <p class="small-text"><em>Select resources needed</em></p>
-
-    <div style="width:auto;float:left; margin-right:15px;">
-        <span class="checkbox">
-            <input type="checkbox" id="has_whiteboards" name="equipment" value="has_whiteboards">
-            <label class="inline" for="has_whiteboards">Whiteboard</label>
-        </span>
-        <span class="checkbox">
-            <input type="checkbox" id="has_outlets" name="equipment" value="has_outlets">
-            <label class="inline" for="has_outlets">Outlets</label>
-        </span>
-        <span class="checkbox">
-            <input type="checkbox" id="has_computers" name="equipment" value="has_computers">
-            <label class="inline" for="has_computers">Computer</label>
-        </span>
-        <span class="checkbox">
-            <input type="checkbox" id="has_scanner" name="equipment" value="has_scanner">
-            <label class="inline" for="has_scanner">Scanning</label>
-        </span>
-    </div>
-
-    <div style="width:auto;float:left;">
-        <span class="checkbox">
-            <input type="checkbox" id="has_displays" name="equipment" value="has_displays">
-            <label class="inline" for="has_displays">Large display (for laptop)</label>
-        </span>
-        <span class="checkbox">
-            <input type="checkbox" id="has_projector" name="equipment" value="has_projector">
-            <label class="inline" for="has_projector">Projector</label>
-        </span>
-        <span class="checkbox">
-            <input type="checkbox" id="has_printing" name="equipment" value="has_printing">
-            <label class="inline" for="has_printing">Printing</label>
-        </span>
-    </div>
-</fieldset>
-
-
 </div>
-<div class="inner-column">
-<div class="inner-block-right">
 
-<fieldset id="filter_restricted_spots" class="choice-group">
-    <legend id="filter_restricted_spots_header">Restricted Spaces</legend>
+
+<div class="inner-column"><div class="inner-block-right">
+<fieldset id="filter_other" class="choice-group">
+    <legend id="filter_other_header">More Options</legend>
+
+    <div class="checkbox">
+        <input type="checkbox" id="reservable" value="true">
+        <label class="inline" for="reservable">Show reservable spaces only</label>
+    </div>
     <div>
-        <p>
+       <label class="inline" for="capacity">Seats at least:</label>
+       <select id="capacity" style="width:60px;">
+         <option value="1">1</option>
+         <option value="2">2</option>
+         <option value="3">3</option>
+         <option value="4">4</option>
+         <option value="5">5</option>
+         <option value="6">6</option>
+         <option value="7">7</option>
+         <option value="8">8</option>
+         <option value="9">9</option>
+         <option value="10">10</option>
+         <option value="15">15</option>
+         <option value="20">20</option>
+         <option value="25">25+</option>
+       </select>
+    </div>
+
+    <div id="filter_restricted_access">
         {% if user.is_authenticated %}
             Restricting spaces for {{ user }}.
             <a href="{{ logout_link }}">Log out</a> to see all spaces.
         {% else %}
             <a href="{{ login_link }}">Log in</a> to exclude restricted spaces.
         {% endif %}
-        </p>
     </div>
 </fieldset>
+
 

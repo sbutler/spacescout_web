@@ -1,0 +1,139 @@
+@uiuc_blue_dark: #0062ae;
+@uiuc_blue: #4594cd;
+@uiuc_blue_light: #e4f1fa;
+@uiuc_green: #48b128;
+
+// retina.less
+// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
+.at2x(@path, @w: auto, @h: auto) {
+  background-image: e(%("url(%s)", @path));
+  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
+
+  @media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
+    background-image: e(%("url(%s)", @at2x_path));
+    background-size: @w @h;
+  }
+}
+
+#nav {
+
+    .logo-container {
+
+        .logo {
+            .at2x('/static/img/uiuc_logo.png', 226px, 56px);
+        }
+
+    }
+}
+
+#filter_container {
+
+    #filter_block {
+        background-color: white;
+        min-height: 0;
+
+        .inner-column {
+            width: 25%;
+        }
+
+        #view_results_button,
+        #cancel_results_button {
+            float: right;
+        }
+    }
+}
+
+#map_canvas {
+    float: right;
+
+    .space-detail-container {
+
+        .space-detail {
+
+            .space-detail-inner {
+
+                .space-detail-header {
+
+                    .space-detail-name {
+                        color: @uiuc_blue_dark;
+                    }
+                }
+
+                .space-image-map-buttons {
+
+                    #carouselControl.active span {
+                        background-image: url('/static/img/uiuc_gallery_active.png');
+                    }
+
+                    #mapControl.active span {
+                        background-image: url('/static/img/uiuc_locate_active.png');
+                    }
+                }
+
+                .space-detail-body {
+
+                    .space-detail-body-inner {
+
+                        .image-container {
+
+                            .carousel-nav {
+
+                                li a.active {
+                                    color: @uiuc_blue_dark;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .space-detail-report {
+
+                    a, a:visited {
+                        color: @uiuc_blue;
+                    }
+                }
+            }
+        }
+    }
+}
+
+#info_list {
+    float: left;
+    border-left: none;
+    border-right: solid 1px #d6d6d6;
+
+    #info_items {
+
+        ol {
+
+            li ol {
+
+                li {
+
+                    .space-detail-list-item {
+
+                        .space-detail-name {
+                            padding-left: 12px;
+                            text-indent: -10px;
+                        }
+
+                        .space-detail-type-label {
+                            padding-left: 12px;
+                            text-indent: -10px;
+                        }
+                    }
+                }
+            }
+
+            li.selected {
+                background: @uiuc_blue_dark url('/static/img/uiuc_list_item_selected.png') top repeat-x;
+                color: white;
+
+                button {
+                    color: white;
+                }
+            }
+        }
+
+    }
+}

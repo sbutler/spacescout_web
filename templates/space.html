@@ -44,7 +44,7 @@
 {% load i18n %}
     
     <div id="space_details_header" class="clearfix">
-        <h1 class="visuallyhidden">SPACESCOUT&trade;</h1>
+        <h1 class="visuallyhidden">Illini Spaces &trade;</h1>
 		<img id="back_home_button" class="pull-left back-button" src="/static/img/details_arrow.png" />
         <div id="name-type-block" class="pull-left">
           {% if false and user.is_authenticated %}<div class="space-detail-fav pull-left"><i class="fa fa-heart"></i></div>{% endif %}
@@ -187,7 +187,7 @@
                         </div>
 
                         <div class="space-detail-report">
-                            <a href="/contact/{{ id }}/"><img src="/static/img/mail.png" />&nbsp;Report a problem with this space</a>
+                            <a href="/contact/{{ id }}/"><img src="/static/img/uiuc_mail.png" />&nbsp;Report a problem with this space</a>
                         </div>
                         <div class="space-detail-footer">This space was last updated on {{last_modified}} by<br/> {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
                     </div>
