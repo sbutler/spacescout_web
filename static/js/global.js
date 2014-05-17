@@ -639,13 +639,14 @@ var requests = [];
 
         var map = new GM.Map($('#spaceMap', container).get(0), mapOptions);
 
-        var image = '/static/img/pins/pin00.png';
-
         var spaceLatLng = new GM.LatLng(lat , lon);
         var spaceMarker = new GM.Marker({
             position: spaceLatLng,
             map: map,
-            icon: image
+            icon: {
+                url: '/static/img/pins/pin00@2x.png',
+                scaledSize: new GM.Size(40,40)
+            }
         });
 
     }
