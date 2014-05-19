@@ -309,7 +309,7 @@
                                     <div class="space-detail-name">{{name}}</div>
                                     <div class="space-detail-desc">{{extended_info.location_description}}</div>
                                     <div class="space-detail-type-label">{{type}}</div>
-                                    <div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>
+                                    {{#if capacity}}<div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>{{/if}}
 
                                     <div class="space-detail-type clearfix">
                                         {{#if extended_info.labstats_id}}
@@ -354,7 +354,8 @@
                                     <div class="space-detail-name">{{name}}</div>
                                     <div class="space-detail-desc">{{extended_info.location_description}}</div>
                                     <div class="space-detail-type-label">{{type}}</div>
-                                    <div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>
+                                    {{#if capacity}}<div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>{{/if}}
+
                                     <div class="space-detail-type clearfix">
                                         {{#if extended_info.labstats_id}}
                                             {{#if extended_info.auto_labstats_total}}
