@@ -15,6 +15,7 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.conf import settings
+from django.utils.translation import ugettext as _
 import oauth2
 import simplejson as json
 import hashlib
@@ -157,7 +158,19 @@ def fetch_open_now_for_campus(campus, use_cache=True, fill_cache=False, cache_pe
         'limit': '0',
     }
 
-    return get_space_json(client, search_args, use_cache, fill_cache, cache_period)
+    data = get_space_json(client, search_args, use_cache, fill_cache, cache_period)
+    i18n_data = []
+    for space in data:
+        string_val = ''
+        for x in range(0, len(space['type'])):
+            if x is 0:
+                string_val = _(space['type'][x])
+            else:
+                string_val = string_val + ', ' + _(space['type'][x])
+        space['type'] = string_val
+        i18n_data.append(space)
+
+    return i18n_data
 
 def get_space_json(client, search_args, use_cache, fill_cache, cache_period):
     # We don't want the management command that fills the cache to get
