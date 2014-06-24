@@ -153,7 +153,7 @@ def fetch_open_now_for_campus(campus, use_cache=True, fill_cache=False, cache_pe
     search_args = {
         'center_latitude': center_latitude,
         'center_longitude': center_longitude,
-        'open_now': '1',
+        'open_anytime': '1',
         'distance': distance,
         'limit': '0',
     }
