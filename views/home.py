@@ -147,11 +147,7 @@ def fetch_open_now_for_campus(campus, use_cache=True, fill_cache=False, cache_pe
         center_latitude = location['CENTER_LATITUDE']
         center_longitude = location['CENTER_LONGITUDE']
         zoom_level = location['ZOOM_LEVEL']
-
-        if 'DISTANCE' in location:
-            distance = location['DISTANCE']
-        else:
-            distance = '500'
+        distance = location.get('DISTANCE', '500')
 
     consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
     client = oauth2.Client(consumer)
