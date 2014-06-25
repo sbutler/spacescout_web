@@ -322,9 +322,6 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
         // Set the search values, so they'll stick through zooms and pans
         window.spacescout_search_options = {};
         var set_cookie = false;
-        if ($.cookie('spacescout_search_opts')) {
-            set_cookie = true; // if there is a cookie, we'd better reset it, or else we get filters that are too sticky
-        }
 
         event_results = { set_cookie: set_cookie };
         $.event.trigger('search_beforeRunCustomOptions', [window.spacescout_search_options, event_results]);
@@ -491,6 +488,9 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
 
         if (set_cookie) {
             $.cookie('spacescout_search_opts', JSON.stringify(window.spacescout_search_options), { expires: 1 });
+        } else if ($.cookie('spacescout_search_opts')) {
+            // No custom search options; remove the cookie to use the default
+            $.removeCookie('spacescout_search_opts');
         }
         
         // reset the scroll to top of container
