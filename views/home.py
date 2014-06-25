@@ -50,7 +50,7 @@ def HomeView(request, template=None):
         if hasattr(settings, 'SS_DEFAULT_LOCATION'):
             location = settings.SS_DEFAULT_LOCATION
 
-    spaces, template_values = get_campus_data(location)
+    spaces, template_values = get_campus_data(request, location)
 
     spaces = json.dumps(spaces)
 
@@ -106,8 +106,14 @@ def get_key_for_search_args(search_args):
 
     return "space_search_%s" % hashlib.sha224(joined).hexdigest()
 
-def get_campus_data(campus):
-    spaces = fetch_open_now_for_campus(campus)
+def get_campus_data(request, campus):
+    # Only fetch space data if we are doing an initial load; otherwise
+    # the page JS will just ignore what we do here and perform its
+    # own search query
+    if request.COOKIES.get('initial_load', 'true') == 'true':
+        spaces = fetch_open_now_for_campus(campus)
+    else:
+        spaces = []
     template_values = template_values_for_campus(campus)
 
     return spaces, template_values
