@@ -29,15 +29,17 @@
     
     /* Populate the filter box with saved search options. */
     $(document).on( 'search_afterRepopulateFilters', function (event, filter_opts) {
-        if (!filter_opts.only_at && !filter_opts.open_until && !filter_opts.open_now)
+        if (filter_opts.open_anytime)
             $('#open_anytime').prop( 'checked', true );
+        else if (!filter_opts.only_at && !filter_opts.open_until && !filter_opts.open_anytime)
+            $('#open_now').prop( 'checked', true );
     } );
 
     /* Save the filter box options into the search options. */
     $(document).on( 'search_afterRunCustomOptions', function (event, filter_opts, results) {
         if ($('#open_anytime').prop( 'checked' )) {
             filter_opts.open_anytime = 1;
-            results.set_cooke = true;
+            results.set_cookie = true;
         }
     } );
 
