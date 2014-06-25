@@ -90,8 +90,6 @@
 //            }
 
             clear_filter();
-            // clear the initial_load cookie so we can use the in-page json
-            $.removeCookie('initial_load');
         });
 
 

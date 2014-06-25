@@ -155,9 +155,6 @@
 //          }
 
             clear_filter();
-
-            // remove initial_load cookie so we can use the in-page json
-            $.removeCookie('initial_load');
         });
 
         // handle view details click

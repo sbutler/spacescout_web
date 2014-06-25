@@ -514,7 +514,6 @@ var requests = [];
 //          $('.count').hide();
 //          $('.spaces').hide();
             run_custom_search();
-            $.cookie('initial_load', false, { expires: 1 });
             $('#filter_button').focus();
         });
 

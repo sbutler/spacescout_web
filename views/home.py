@@ -107,10 +107,10 @@ def get_key_for_search_args(search_args):
     return "space_search_%s" % hashlib.sha224(joined).hexdigest()
 
 def get_campus_data(request, campus):
-    # Only fetch space data if we are doing an initial load; otherwise
+    # Only fetch space data if we are doing an default load; otherwise
     # the page JS will just ignore what we do here and perform its
     # own search query
-    if request.COOKIES.get('initial_load', 'true') == 'true':
+    if not request.COOKIES.get('spacescout_search_opts', None):
         spaces = fetch_open_now_for_campus(campus)
     else:
         spaces = []

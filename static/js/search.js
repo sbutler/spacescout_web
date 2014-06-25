@@ -663,12 +663,11 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
 
     function _reloadOnIdle() {
         // load the in-page json first time through
-        if (window.initial_load) {
+        if (!$.cookie('spacescout_search_opts')) {
 //          var source = $('#filter_list').html();
 //          var template = H.compile(source);
 //          $('#bubble_filters_container').html(template({}));
             _loadData(initial_json);
-            window.initial_load = false;
         // only fetch data as long as space details are NOT being shown
         } else if (!$('.space-detail-container').is(":visible")) {
             _fetchData();
