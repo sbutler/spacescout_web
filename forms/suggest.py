@@ -17,7 +17,7 @@ from django import forms
 
 class SuggestForm(forms.Form):
         name = forms.CharField(max_length=25, label="Your Name", required=True)
-        netid = forms.CharField(max_length=25, label="Your UW NetID", required=True)
+        netid = forms.CharField(max_length=25, label="Your NetID", required=True)
         sender = forms.EmailField(max_length=40, label="Your Email", required=True)
         building = forms.CharField(widget=forms.TextInput(), label="Building Name", required=True)
         floor = forms.CharField(widget=forms.TextInput(), label="Floor Number", required=True)

@@ -39,7 +39,7 @@ def suggest(request, spot_id=None):
             subject = "[Suggestion] From %s" % (name)
             email_message = "Suggested Space:\n\
                            \nFrom: %s <%s>\n\
-                           \nUW NetID: %s\n\
+                           \nNetID: %s\n\
                            \nBuilding: %s\n\
                            \nFloor: %s\n\
                            \nRoom number: %s\n\
