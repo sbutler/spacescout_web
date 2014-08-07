@@ -261,6 +261,7 @@ var requests = [];
                 } else if (time[0] == "12" && time[1] == "00") {
                     data[i] = "Noon";
                 } else {
+                    time[0] = parseInt(time[0], 10);
                     if (time[0] > 12) {
                         time[0] -= 12;
                         time[1] += "PM";
