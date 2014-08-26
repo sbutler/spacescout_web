@@ -654,6 +654,9 @@ var requests = [];
     function replaceUrls(){
         // Replace urls in reservation notes with actual links.
         var text = $("#ei_reservation_notes").html();
+        if (text.indexOf('<a') > -1) {
+            return;
+        }
         var patt = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
         var url = patt.exec(text);
         if (url !== null) {
