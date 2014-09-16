@@ -96,7 +96,7 @@
               {% block content %}{% endblock %}
 
               <div id="footer" class="clearfix" role="contentinfo">
-                  <div class="pull-left copyright">Copyright &copy; 2012 &nbsp;&nbsp;&nbsp;<a href="http://www.washington.edu/online/privacy/" target="_blank">Privacy</a> | <a href="http://www.washington.edu/online/terms/" target="_blank">Terms</a> | <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/" title="About SpaceScout" target="_blank">About</a><br/>Academic and Collaborative Applications, UW-IT</div>
+                  <div class="pull-left copyright">Copyright &copy; 2012 &nbsp;&nbsp;&nbsp;<a href="http://www.washington.edu/online/privacy/" target="_blank" title="UW Online Privacy Statement">Privacy</a> | <a href="http://www.washington.edu/online/terms/" target="_blank" title="UW Website Terms & Conditions">Terms</a> | <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/" title="About SpaceScout" target="_blank">About</a> | <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/" title="FAQ about SpaceScout" target="_blank">FAQ</a><br/>Academic and Collaborative Applications, UW-IT</div>
                   <div class="pull-left partners">Brought to you by UW-IT in partnership with Housing and Food Services, UW Libraries, UW Computing Directors, and partially funded by the Student Technology Fee</div>
               </div>
           </div>
@@ -107,9 +107,9 @@
 
           <!-- Google Maps -->
           {% if gmaps_api_key %}
-          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3&key={{ gmaps_api_key }}&libraries=geometry&amp;sensor=false"></script>
+          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.15&key={{ gmaps_api_key }}&libraries=geometry&amp;sensor=false"></script>
           {% else %}
-          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?libraries=geometry&amp;sensor=false"></script>
+          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.15&libraries=geometry&amp;sensor=false"></script>
           {% endif %}
 
             {% compress js %}
@@ -117,7 +117,6 @@
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-transition.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-button.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-carousel.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-tooltip.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/typeahead.bundle.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-tokenfield.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/handlebars.js"></script>
@@ -127,6 +126,7 @@
             <script type="text/javascript" src="{{ STATIC_URL }}js/search.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/url.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/favorites.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/reviews.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/mobile.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/clustering.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/retina.js"></script>

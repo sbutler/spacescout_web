@@ -19,6 +19,7 @@ from django.http import HttpResponse
 from mobility.decorators import mobile_template
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
+from spacescout_web.views.contact import validate_back_link
 import oauth2
 
 
@@ -26,8 +27,17 @@ import oauth2
 @login_required(login_url='/login')
 @mobile_template('spacescout_web/{mobile/}favorites.html')
 def FavoritesView(request, template=None):
+    try:
+        back = request.GET['back']
+        validate_back_link(back)
+    except:
+        back = '/'
+
     return render_to_response(template,
-                              { 'locations': settings.SS_LOCATIONS },
+                              {
+                                  'locations': settings.SS_LOCATIONS,
+                                  'back': back
+                              },
                               context_instance=RequestContext(request))
 
 

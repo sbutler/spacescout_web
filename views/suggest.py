@@ -18,12 +18,26 @@ from django.http import HttpResponseRedirect
 from spacescout_web.forms.suggest import SuggestForm
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.http import urlquote
+from spacescout_web.views.contact import validate_back_link
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def suggest(request, spot_id=None):
     if request.method == 'POST':
         form = SuggestForm(request.POST)
+
+        try:
+            back = request.POST['back']
+            validate_back_link(back)
+        except:
+            back = '/'
+
         if form.is_valid():
+            back = form.cleaned_data['back']
             name = form.cleaned_data['name']
             netid = form.cleaned_data['netid']
             sender = form.cleaned_data['sender']
@@ -37,7 +51,8 @@ def suggest(request, spot_id=None):
             browser = request.META.get('HTTP_USER_AGENT', 'Unknown')
 
             subject = "[Suggestion] From %s" % (name)
-            email_message = "Suggested Space:\n\
+            email_message = "A SpaceScout user has suggested the following space.\n\
+                           \nSuggested Space:\n\
                            \nFrom: %s <%s>\n\
                            \nUW NetID: %s\n\
                            \nBuilding: %s\n\
@@ -51,15 +66,38 @@ def suggest(request, spot_id=None):
 
             if bot_test == '':
                 try:
+                    if not hasattr(settings, 'FEEDBACK_EMAIL_RECIPIENT'):
+                        logger.error('Missing configuration: Set FEEDBACK_EMAIL_RECIPIENT for your site')
                     send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)
-                except:
+                except Exception as e:
+                    logger.error('Suggest failure: %s' % (e))
                     return HttpResponseRedirect('/sorry/')
-            return HttpResponseRedirect('/thankyou/')
+
+
+            return HttpResponseRedirect('/thankyou/?back=' + urlquote(back))
     else:
-        form = SuggestForm()
+        try:
+            back = request.GET['back']
+            validate_back_link(back)
+        except:
+            back = '/'
+
+        form = SuggestForm(initial={'back': back})
 
     return render_to_response('spacescout_web/suggest-form.html', {
         'form': form,
-        'back': '/',
+        'back': back,
         'is_mobile': (request.MOBILE == 1),
+    }, context_instance=RequestContext(request))
+
+
+def thank_you(request, spot_id=None):
+    try:
+        back = request.GET['back']
+        validate_back_link(back)
+    except:
+        back = '/'
+
+    return render_to_response('spacescout_web/suggest-thankyou.html', {
+        'back': back,
     }, context_instance=RequestContext(request))

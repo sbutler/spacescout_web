@@ -20,15 +20,21 @@
 */
 (function(){
 
+    $(document).ready(function () {
+        window.spacescout_favorites.favorites = window.spacescout_favorites_list;
+    });
+
     window.spacescout_favorites = window.spacescout_favorites || {
         k: {
             'favorites_count_container': '.favorites_count_container',
             'favorites_count_template': '#favorites_count',
+            'favorites_total_container': '.favorites_total_container',
+            'favorites_total_template': '#favorites_total',
             'favorites_card_container': '.favorites_card_container',
             'favorites_card_template': '#favorites_card'
         },
 
-        favorites: undefined,
+        favorites: window.spacescout_favorites_list,
 
         update_count: function () {
             var self = this,
@@ -41,6 +47,17 @@
                     $(this).html(template({count: self.favorites ? self.favorites.length : 0}));
                 });
             }
+
+            source = $(self.k.favorites_total_template);
+            if (source.length) {
+                template = Handlebars.compile(source.html().trim());
+                $(this.k.favorites_total_container).each(function () {
+                    var total = self.favorites ? self.favorites.length : 0,
+                        plural = (total == 1) ? '' : 's';
+
+                    $(this).html(template({ total: total, plural: plural }));
+                });
+            }
         },
 
         update_search_result: function () {
@@ -48,7 +65,7 @@
                 detail_node = $('div[id^=detail_container_]'),
                 detail_id = detail_node.length ? parseInt(detail_node.prop('id').match(/^detail_container_(\d+)$/)[1]) : null;
 
-            $('button .space-detail-fav').each(function () {
+            $('#info_items .view-details button .space-detail-fav').each(function () {
                 var node = $(this),
                     id = parseInt(node.parent().prop('id'));
 
@@ -56,13 +73,11 @@
                     node.show();
                     if (id == detail_id) {
                         $('.space-detail-fav', detail_node).removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
-                        $('.space-detail-fav i', detail_node).removeClass('fa-heart-o').addClass('fa-heart');
                     }
                 } else {
                     node.hide();
                     if (id == detail_id) {
                         $('.space-detail-fav', detail_node).removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
-                        $('.space-detail-fav i', detail_node).removeClass('fa-heart').addClass('fa-heart-o');
                     }
                 }
             });
@@ -70,8 +85,8 @@
 
         update_cards: function () {
             var container = $(this.k.favorites_card_container),
-                campuses = {}, campus,
-                source, template, i, j, node, opts, n, blank,
+                campuses = {}, campus, campus_name,
+                source, template, i, j, n, blank, campus_select, opts,
                 self = this,
                 insert_card = function (i, space) {
                     var spot = $('spot_' + space.id),
@@ -81,7 +96,7 @@
 
                     if ($.isArray(space.type)) {
                         $.each(space.type, function () {
-                            type.push(gettext(space.type));
+                            type.push(gettext(this));
                         });
                     }
 
@@ -125,34 +140,107 @@
                     }
                 });
 
-                blank = Handlebars.compile($('#blank_card').html())();
+                blank = Handlebars.compile($('#blank_card').html())({ back: window.spacescout_referrer });
+                campus_select = $('#location_select');
 
-                if (campuses && Object.keys(campuses).length > 1) {
+                if (campuses && Object.keys(campuses).length > 0
+                    && (Object.keys(campuses).length > 1
+                        || !campuses.hasOwnProperty($('option:selected', campus_select).val().split(',')[2]))) {
                     template = Handlebars.compile($('#campus_label').html());
-                    node = $('#location_select');
-                    opts = node.find('option');
-                    i = node.prop('selectedIndex');
+
+                    opts = $('option', campus_select);
+                    i = campus_select.prop('selectedIndex');
 
                     for (j = 0; j < opts.size(); j += 1) {
                         campus = $(opts[i]).val().split(',')[2];
+                        campus_name = opts[i].innerHTML;
                         i = ((i + 1) % opts.size());
 
+                        container.append(template({ campus: campus_name + ' Campus' }));
+
                         if (campuses.hasOwnProperty(campus)) {
-                            container.append(template({ campus: campus.charAt(0).toUpperCase() + campus.slice(1) + ' Campus' }));
                             $.each(campuses[campus], insert_card);
-                            if (blank) {
-                                container.append(blank);
-                                blank = null;
-                            }
                         }
 
+                        if (blank) {
+                            container.append(blank);
+                            blank = null;
+                        }
                     }
                 } else {
                     $.each(this.favorites, insert_card);
                     container.append(blank);
                 }
 
+                replaceReservationNotesUrls();
+
                 $.event.trigger('favoritesLoaded', [ this.favorites ]);
+            }
+        },
+
+        update_favorites_button: function (id) {
+            var fav_button = $('button#favorite_space'),
+                fav_icon = $('.space-detail-fav', fav_button),
+                fav_icon_i = $('i', fav_icon),
+                setFavoritedButton = function (id) {
+                    var title = fav_button.attr('title').replace(/ favorite /, ' unfavorite ');
+
+                    fav_icon.removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
+                    fav_icon.parent().find('span:last').text(gettext('favorited'));
+                    fav_button.attr('title', title);
+                    if (id) {
+                        $('button#' + id + ' .space-detail-fav').show();
+                    }
+                },
+                unsetFavoritedButton = function(id) {
+                    var title = fav_button.attr('title').replace(/ unfavorite /, ' favorite ');
+
+                    fav_icon.removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
+                    fav_icon.parent().find('span:last').text(gettext('favorite'));
+                    fav_button.attr('title', title);
+                    if (id) {
+                        $('button#' + id + ' .space-detail-fav').hide();
+                    }
+                };
+
+            if (fav_icon.is(':visible')) {
+                var authenticated_user = window.spacescout_authenticated_user.length > 0;
+
+                if (authenticated_user && window.spacescout_favorites.is_favorite(id)) {
+                    setFavoritedButton();
+                } else {
+                    unsetFavoritedButton();
+                }
+
+                fav_icon.unbind();
+
+                fav_button.click(function (e) {
+                    if (!authenticated_user) {
+                        $.cookie('space_set_favorite', JSON.stringify({ id: id }));
+                        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+                    }
+
+                    window.spacescout_favorites.toggle(id);
+                });
+
+                $(document).on('spaceFavoriteSet', function (e, id) {
+                    setFavoritedButton(id);
+                });
+
+                $(document).on('spaceFavoriteClear', function (e, id) {
+                    unsetFavoritedButton(id);
+                });
+
+                if (authenticated_user) {
+                    var set_favorite = $.cookie('space_set_favorite'),
+                        json_favorite = set_favorite ? JSON.parse(set_favorite) : null;
+
+                    if (json_favorite) {
+                        window.spacescout_favorites.set(json_favorite.id);
+                    }
+
+                    $.removeCookie('space_set_favorite');
+                }
             }
         },
 
@@ -160,10 +248,15 @@
             var self = this;
 
             $.ajax({
-                url: 'web_api/v1/user/me/favorites',
+                url: '/web_api/v1/user/me/favorites',
                 success: function (data) {
-                    self.favorites = data ? data : [];
-                    self.update();
+                    if ($.isArray(data)) {
+                        self.favorites = data;
+                        self.update();
+                    }
+                    else {
+                        console.log('Unrecognized favorites response: ' + data);
+                    }
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     console.log('Unable to load favorites: ' + xhr.responseText);
@@ -184,7 +277,7 @@
                 fav = (this.index(id) >= 0);
             } else {
                 $.ajax({
-                    url: 'web_api/v1/user/me/favorite/' + id,
+                    url: '/web_api/v1/user/me/favorite/' + id,
                     type: "GET",
                     async: false,
                     success: function (data) {
@@ -213,22 +306,22 @@
             return -1;
         },
 
-        toggle: function (id, on_set, on_clear) {
+        toggle: function (id) {
             if (this.is_favorite(id)) {
-                this.clear(id, on_clear);
+                this.clear(id);
             } else {
-                this.set(id, on_set);
+                this.set(id);
             }
 
             this.update_count();
         },
 
-        set: function (id, on_set) {
+        set: function (id) {
             var self = this;
 
             if (!this.is_favorite(id)) {
                 $.ajax({
-                    url: 'web_api/v1/user/me/favorite/' + id,
+                    url: '/web_api/v1/user/me/favorite/' + id,
                     dataType: 'json',
                     contentType: "application/json",
                     data: JSON.stringify({}),
@@ -252,9 +345,7 @@
                         }
 
                         self.update_count();
-                        if (on_set) {
-                            on_set.call();
-                        }
+                        $.event.trigger('spaceFavoriteSet', [ id ]);
                     },
                     error: function (xhr, textStatus, errorThrown) {
                         console.log('Unable to set favorite: ' + xhr.responseText);
@@ -263,11 +354,11 @@
             }
         },
 
-        clear: function (id, on_clear) {
+        clear: function (id) {
             var self = this;
 
             $.ajax({
-                url: 'web_api/v1/user/me/favorite/' + id,
+                url: '/web_api/v1/user/me/favorite/' + id,
                 dataType: 'json',
                 type: "DELETE",
                 success: function (data) {
@@ -280,9 +371,7 @@
                     }
 
                     self.update_count();
-                    if (on_clear) {
-                        on_clear.call();
-                    }
+                    $.event.trigger('spaceFavoriteClear', [ id ]);
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     console.log('Unable to unset favorite: ' + xhr.responseText);
@@ -299,21 +388,24 @@
                 hour = now.getHours(),
                 minute = now.getMinutes(),
                 day = weekday_from_day(now.getDay()).toLowerCase(),
-                formatted = 'Closed',
-                o, c;
+                formatted = 'Closed';
 
             $('.space-detail-is-closed', card).show();
-            
+
+            loadRatingsAndReviews(fav.id, $('.space-ratings-and-reviews', card), card);
+
             if (fav.available_hours[day].length > 0) {
                 $.each(fav.available_hours[day], function() {
-                    this[0] = this[0].replace(/^0+/, '');
-                    this[1] = this[1].replace(/^0+/, '');
-                    o = this[0].split(':');
-                    c = this[1].split(':');
+                    var o = this[0].replace(/^0+/, '').split(':'),
+                        c = this[1].replace(/^0+/, '').split(':'),
+                        o_h = o[0].length ? parseInt(o[0]) : 0,
+                        o_m = o[1].length ? parseInt(o[1]) : 0,
+                        c_h = c[0].length ? parseInt(c[0]) : 0,
+                        c_m = c[1].length ? parseInt(c[1]) : 0;
                     
-                    if ((hour > parseInt(o[0]) && hour < parseInt(c[0]))
-                        || (hour == parseInt(o[0]) && minute > parseInt(o[1]))
-                        || (hour == parseInt(c[0]) && minute < parseInt(c[1]))) {
+                    if ((hour > o_h && hour < c_h)
+                        || (hour == o_h && minute > o_m)
+                        || (hour == c_h && minute < c_m)) {
                         $('.space-detail-is-open', card).show();
                         $('.space-detail-is-closed', card).hide();
                     }
@@ -332,25 +424,49 @@
             });
             
             $('.space-info-less-detail a', card).click(function (e) {
-                var ul = $(e.target).closest('ul');
+                var ul = $(e.target).closest('ul'),
+                    reviews = $('.space-reviews-review', ul);
                 
-                ul.slideUp('fast');
+                ul.slideUp('fast', function () {
+                    var top = card.offset().top,
+                        scrolltop = $(document).scrollTop();
+
+                    if (top < scrolltop) {
+                        $('html,body').animate({
+                            scrollTop: top
+                        }, 400, 'swing');
+                    }
+                });
                 ul.prev().slideDown('fast');
+                
+                if (reviews.length > window.spacescout_reviews.pagination) {
+                    reviews.each(function (i) {
+                        if (i >= window.spacescout_reviews.pagination) {
+                            $(this).hide();
+                        }
+                    });
+
+                    $('.more-space-reviews', ul).show();
+                }
             });
             
-            $('.space-detail-fav', card).tooltip({ placement: 'right',
-                                                   title: 'Remove this space from Favorites' });
             $('.space-detail-fav', card).click(function (e) {
-                var id = parseInt($(this).attr('data-id'));
-                var container = $(this).closest('.space-detail-container');
-                var tooltip = $(this).tooltip('hide');
-                
-                window.spacescout_favorites.clear(id, function () {
-                    container.hide({ effect: 'fade', duration: 800,  complete: function () { this.remove(); } });
+                window.spacescout_favorites.clear(parseInt($(this).attr('data-id')));
+            });
+
+            $(document).on('spaceFavoriteClear', function (e, id) {
+                var container = $('#spot_'+id).closest('.space-detail-container');
+
+                container.hide({
+                    effect: 'fade',
+                    duration: 800,
+                    complete: function () {
+                        container.remove();
+                    }
                 });
             });
-            
-            var bld_code = fav.location.building_name.match(/.*\(([A-Z ]+)\)( [a-zA-Z]+)?$/)
+
+            var bld_code = fav.location.building_name.match(/.*\(([A-Z ]+)\)( [a-zA-Z]+)?$/);
             if (bld_code) {
                 $('.space-detail-building', card).html(bld_code[1] + (bld_code[2] ? bld_code[2] : ''));
             } else {
@@ -390,7 +506,9 @@
                 h = $(e.target).prop('href'),
 
                 window.location.href = h
-                    + '?back=' + encodeURIComponent('/favorites#spot_' + h.match(/\d+$/)[0]);
+                    + '?back=' + encodeURIComponent('/favorites'
+                                                    + '?back=' + encodeURIComponent(window.spacescout_referrer)
+                                                    + '#spot_' + h.match(/\d+$/)[0]);
             });
 
             if (window.location.hash.length > 1) {
@@ -407,6 +525,20 @@
                 
                 $(window.location.hash).parent().find('.space-info-more-detail a').click();
             }
+
+            $('.space-detail-fav-button').hover(function() {
+                $(this).addClass('space-detail-fav-button-active');
+            }, function () {
+                $(this).removeClass('space-detail-fav-button-active');
+            });
+
+            $('.space-detail-fav-button').focus(function() {
+                $(this).addClass('space-detail-fav-button-active');
+            });
+
+            $('.space-detail-fav-button').blur(function() {
+                $(this).removeClass('space-detail-fav-button-active');
+            });
         });
 
         $('#back_link').click(function (e) {

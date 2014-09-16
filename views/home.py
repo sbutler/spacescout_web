@@ -76,8 +76,19 @@ def HomeView(request, template=None):
 
     consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
     client = oauth2.Client(consumer)
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+        }
+
+    if request.user and request.user.is_authenticated():
+        headers["XOAUTH_USER"] = "%s" % request.user.username
+
+    log_shared_space_reference(request, headers, client)
 
     buildings = json.loads(get_building_json(client))
+
+    favorites_json = get_favorites_json(headers, client)
 
     # This could probably be a template tag, but didn't seem worth it for one-time use
     #TODO: hey, actually it's probably going to be a Handlebars helper and template
@@ -102,9 +113,12 @@ def HomeView(request, template=None):
         'by_distance_ratio': by_distance_ratio,
         'buildingdict': buildingdict,
         'spaces': spaces,
+        'favorites_json': favorites_json,
     }
 
-    return render_to_response(template, params, context_instance=RequestContext(request))
+    response = render_to_response(template, params, context_instance=RequestContext(request))
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 def get_key_for_search_args(search_args):
@@ -157,6 +171,9 @@ def fetch_open_now_for_campus(campus, use_cache=True, fill_cache=False, cache_pe
         else:
             distance = '500'
 
+    # SPOT-1832.  Making the distance far enough that center of campus to furthest spot from the center
+    # can be found
+    distance = 1000
     consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
     client = oauth2.Client(consumer)
 
@@ -227,3 +244,32 @@ def get_building_json(client):
         return content
 
     return '[]'
+
+
+#TODO: use the favorites view instead
+def get_favorites_json(headers, client):
+    url = "{0}/api/v1/user/me/favorites".format(settings.SS_WEB_SERVER_HOST)
+
+    resp, content = client.request(url, method='GET', headers=headers)
+
+    if resp.status == 200:
+        return content
+
+    return '[]'
+
+
+def log_shared_space_reference(request, headers, client):
+    # log shared space references
+    m = re.match(r'^/space/(\d+)/.*/([a-f0-9]{32})$', request.path)
+    if m:
+        try:
+            url = "{0}/api/v1/spot/{1}/shared".format(settings.SS_WEB_SERVER_HOST, m.group(1))
+
+            resp, content = client.request(url,
+                                           method='PUT',
+                                           body=json.dumps({ 'hash': m.group(2) }),
+                                           headers=headers)
+
+            # best effort, ignore response
+        except:
+            pass

@@ -24,7 +24,7 @@ Handlebars.registerHelper('carouselimages', function(spacedata) {
     if (spacedata.images.length > 0) {
         for (i=0; i < spacedata.images.length; i++) {
             image_id = spacedata.images[i].id;
-            image_url = "background:url(/space/" + space_id + "/image/" + image_id + "/thumb/constrain/width:500)";
+            image_url = "background:url(/image/space/" + space_id + "/" + image_id + "/thumb/constrain/width:500)";
             div_string = "<div class='carousel-inner-image item'><div class='carousel-inner-image-inner' style='" + image_url + "'>&nbsp;</div></div>";
             elements.push(div_string);
         }
@@ -318,6 +318,12 @@ function weekday_from_day(day) {
     return (day >=0 && day <= 6) ? weekdays[day] : '';
 }
 
+function monthname_from_month(month) {
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    return (month >=0 && month < 12) ? months[month] : '';
+}
+
 function format_location_filter(data) {
     var source = $('#building_list').html();
     var template = Handlebars.compile(source);
@@ -411,23 +417,11 @@ function reset_location_filter() {
             run_custom_search();
 
             window.update_count = true;
-            get_location_buildings();
-            $.cookie('default_location', $(this).val());
+
+            $.cookie('default_location', $(this).val(), { path: '/' });
             reset_location_filter();
-            window.spacescout_url.replace();
+            window.spacescout_url.push();
         });
-
-    	// handle clicking on map centering buttons
-        $('#center_all').on('click', function(e){
-
-            e.preventDefault();
-            if (window.spacescout_map.getZoom() != window.default_zoom) {
-                window.spacescout_map.setZoom(parseInt(window.default_zoom));
-            }
-            window.spacescout_map.setCenter(new google.maps.LatLng(window.default_latitude, window.default_longitude));
-        });
-
-        get_location_buildings();
 
         // handle checkbox and radio button clicks
         $('.checkbox input:checkbox').click(function() {
@@ -471,7 +465,13 @@ function reset_location_filter() {
         $(document).keyup(function(e) {
             if (e.keyCode == escape_key_code) {
                 if ($('#filter_block').is(':visible')) {
+
                     $('#filter_block').slideUp(400, function() {
+                        var icon = $('.fa-angle-double-up');
+                        if (icon.length) {
+                            icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
+                        }
+
                         //mobile style stuff
                         if ($('#container').attr("style")) {
                             $('#container').height('auto');
@@ -662,15 +662,19 @@ function getSpaceMap(container, lat, lon) {
 
 }
 
-function replaceUrls(){
+function replaceReservationNotesUrls(){
     // Replace urls in reservation notes with actual links.
-    var text = $("#ei_reservation_notes").html();
-    var patt = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
-    var url = patt.exec(text);
-    if (url !== null) {
-        text = text.replace(url, "<a href='" + url + "' target='_blank'>" + url + "</a>");
-        $("#ei_reservation_notes").html(text);
-    }
+    $(".ei_reservation_notes").each(function() {
+        var text = $(this).html(),
+            patt = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim,
+            url = patt.exec(text);
+
+        if (url !== null) {
+            text = text.replace(url, "<a href='" + url + "' target='_blank'>" + url + "</a>");
+            $(this).html(text);
+        }
+    });
+
 }
 
 function closeSpaceDetails() {

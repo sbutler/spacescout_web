@@ -44,16 +44,26 @@
                             window.default_longitude = location[1];
                             window.default_location = location[2];
                             window.default_zoom = parseInt(location[3]);
-                            $(this).attr('selected', 'selected');
+                            $(this).parent().prop('selectedIndex', i);
                         }
                     });
-                    
-                    repopulate_filters(this.decode_search_terms(state.search));
+
+                    window.spacescout_search_options = this.decode_search_terms(state.search);
+                    clear_filter();
+                    repopulate_filters(window.spacescout_search_options);
                     run_custom_search();
                 } else if (state.id) {
-                    data_loaded();
+                    if (window.spacescout_web_mobile) {
+                        window.spacescout_web_mobile.show_space_detail(state.id);
+                    } else {
+                        data_loaded();
+                    }
                 } else if ($('.space-detail-container').length) {
-                    closeSpaceDetails();
+                    if (window.spacescout_web_mobile) {
+                        window.spacescout_web_mobile.show_main_app();
+                    } else {
+                        closeSpaceDetails();
+                    }
                 }
                 break;
             default:
@@ -63,6 +73,7 @@
 
         push: function (id) {
             var url = [''],
+                path,
                 campus = window.default_location,
                 search = this.encode_current_search();
 
@@ -76,9 +87,13 @@
                 url.push(id);
             }
 
-            history.pushState({ campus: campus, search: search, id: id, local_path: '' },
-                              null,
-                              url.join('/'));
+            path = url.join('/');
+
+            // only push fresh references
+            if (decodeURIComponent(window.location.pathname) != path) {
+                history.pushState({ campus: campus, search: search, id: id, local_path: '' },
+                                  '', path);
+            }
         },
 
         replace: function (id) {
@@ -97,7 +112,7 @@
             }
 
             history.replaceState({ campus: campus, search: search, id: id },
-                                 null,
+                                 '',
                                  url.join('/'));
         },
 
@@ -237,12 +252,12 @@
                 terms = raw ? raw.split('|') : [];
 
             $.each(terms, function () {
-                var m = this.match(/^([^:]+):(.*)$/),
+                var m = this.match(/^([^:]+)(:(.*))?$/),
                     v;
 
                 if (!m) return;
 
-                v = m[2];
+                v = m[3];
                 switch (m[1]) {
                 case 'type':
                     opts['type'] = [];
@@ -264,7 +279,11 @@
                     opts["open_until"] = v;
                     break;
                 case 'bld' :
-                    opts["building_name"] = v;
+                    opts["building_name"] = [];
+                    $.each(v.split(','), function () {
+                        opts['building_name'].push(this);
+                    });
+
                     break;
                 case 'rwb' :
                     opts["extended_info:has_whiteboards"] = true;
@@ -315,12 +334,14 @@
     };
 
     $(window).bind('popstate', function (e) {
-        if (e.originalEvent.state) {
+       if (e.originalEvent.state) {
             window.spacescout_url.dispatch(e.originalEvent.state);
-        }
+       } else {
+            window.spacescout_url.load(window.location.pathname);
+       }
     });
 
-    $(document).on('searchResultsLoaded', function () {
+    $(document).on('searchResultsLoaded', function (e, data) {
         var state = window.spacescout_url.parse_path(window.location.pathname);
 
         if (window.location.pathname == '' || window.location.pathname == '/') {

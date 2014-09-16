@@ -2,17 +2,27 @@
 
 {% tplhandlebars "favorites_card" %}
 <div class="space-detail-container">
-    <div class="space-detail">
+    <div class="space-detail" role="listitem" aria-labelledby="space-name">
         <div class="space-detail-inner">
             <div id="spot_{{ id }}" class="space-detail-header clearfix">
-              <h1 class="visuallyhidden">SPACESCOUT&trade;</h1>
-              <div class="space-detail-building">{{ location.building_code }}</div>
+              <div class="space-detail-building"> {{ location.building_code }}</div>
               <div id="name-type-block" class="pull-left">
-                <div class="space-detail-fav pull-left space-detail-fav-set" data-id="{{ id }}"><i class="fa fa-heart"></i></div>
-                <h2 class="space-detail-name"><span class="visuallyhidden">Space Details: </span>{{ name }}</h2>
-                <div class="space-detail-type">{{ type }} {{#if capacity }}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{{/if}}</div>
+                <h4 id="space-name" class="space-detail-name"><span class="visuallyhidden">Space Details: </span>{{ name }}</h4>
+                <div class="space-detail-type">{{{ type }}} {{#if capacity }}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{{/if}}</div>
                 <div class="space-detail-tick space-detail-is-open" style="display: none;">OPEN</div>
                 <div class="space-detail-tick space-detail-is-closed" style="display: none;">CLOSED</div>
+                <div>
+                  <span class="space-stars">
+                    <i class="fa fa-star-o"></i>
+                    <i class="fa fa-star-o"></i>
+                    <i class="fa fa-star-o"></i>
+                    <i class="fa fa-star-o"></i>
+                    <i class="fa fa-star-o"></i>
+                  </span>
+                  <span id="space-average-rating-text" class="visuallyhidden">There are no reviews for {{ name }}</span>
+                  <span id="review_count"></span>
+                  <a class="space-detail-fav space-detail-fav-button pull-right space-detail-fav-set" href="javascript:void(0);" data-id="{{ id }}" title="Click to remove {{ name }} from Favorites" role="button" aria-controls="favorites-tally"><i class="fa fa-heart"></i><span> Favorited</span></a>
+                </div>
               </div>
             </div>
             <div class="space-detail-body">
@@ -48,10 +58,10 @@
 
                             {{#if has_notes }}
                             <li class="clearfix">
-                                <h3 class="space-info-label pull-left">Notes</h3>
+                                <div class="space-info-label pull-left">Notes</div>
                                 <div class="space-info-detail pull-left">
                                     {{#if extended_info.access_notes }}<p>{{extended_info.access_notes}}</p>{{/if}}
-                                    {{#if extended_info.reservation_notes }}<p id="ei_reservation_notes">{{extended_info.reservation_notes }}</p>{{/if}}
+                                    {{#if extended_info.reservation_notes }}<p class="ei_reservation_notes">{{extended_info.reservation_notes }}</p>{{/if}}
                                 </div>
                             </li>
                             {{/if}}
@@ -59,7 +69,7 @@
                                 {{#if extended_info.auto_labstats_total}}
                                     {{#compare extended_info.auto_labstats_total 0 operator="!="}}
                                         <li class="clearfix">
-                                            <h3 class="space-info-label pull-left">Computers</h3>
+                                            <div class="space-info-label pull-left">Computers</div>
                                             <div class="space-info-detail pull-left">
 
                                             {{#compare extended_info.auto_labstats_available 0 operator=">"}}
@@ -73,17 +83,18 @@
                                 {{/if}}
                             {{/if}}
 
-                            <li class="clearfix"><h3 class="space-info-label pull-left">Hours</h3>
-                              <div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
+                            <li class="clearfix">
+                            	<div class="space-info-label pull-left">Hours</div>
+								<div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
                             </li>
 
-                            <li class="clearfix"><h3 class="space-info-label pull-left">Location</h3>
+                            <li class="clearfix"><div class="space-info-label pull-left">Location</div>
                               <div class="space-info-detail pull-left">{{extended_info.location_description}}</div>
                             </li>
 
                             {{#if has_resources }}
                             <li class="clearfix">
-                                <h3 class="space-info-label pull-left">Resources</h3>
+                                <div class="space-info-label pull-left">Resources</div>
                                 <div class="space-info-detail pull-left">
                                     <ul class='space-info-resources-list'>
                                     {{#if extended_info.has_computers }}<li>Computers</li>{{/if}}
@@ -100,26 +111,32 @@
 
                             {{#if extended_info.noise_level }}
                             <li class="clearfix">
-                                <h3 class="space-info-label pull-left">Noise Level</h3>
+                                <div class="space-info-label pull-left">Noise Level</div>
                                 <div class="space-info-detail pull-left">{{ extended_info.noise_level }}</div>
                             </li>
                             {{/if}}
 
                             {{#if extended_info.has_natural_light }}
-                            <li class="clearfix"><h3 class="space-info-label pull-left">Lighting</h3><div class="space-info-detail pull-left">Natural light</div></li>
+                            <li class="clearfix"><div class="space-info-label pull-left">Lighting</div><div class="space-info-detail pull-left">Natural light</div></li>
                             {{/if}}
 
 
                             {{#if extended_info.food_nearby }}
                             <li class="clearfix">
-                                <h3 class="space-info-label pull-left">Food/Coffee</h3>
+                                <div class="space-info-label pull-left">Food/Coffee</div>
                                 <div class="space-info-detail pull-left">{{ extended_info.food_nearby }}</div>
                             </li>
                             {{/if}}
                 <li>
+
                   <div class="space-detail-share">
                     <a class="share_space" href="/share/{{ id }}"><i class="fa fa-share"></i>Share this space</a>
                   </div>
+
+				  <ol class="space-ratings-and-reviews">
+                    <li class="loading"></li>
+                  </ol>
+
                   <div class="space-info-less-detail">
                     <a href="javascript:void(0);"><i class="fa fa-angle-double-up"></i> Show less detail about this space</a>
                   </div>
@@ -133,13 +150,13 @@
 {% endtplhandlebars %}
 
 {% tplhandlebars "mobile_hours" %}
-<h3 class="space-info-label pull-left">Hours</h3><div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
+<div class="space-info-label pull-left">Hours</div><div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
 {% endtplhandlebars %}
 
 {% tplhandlebars "images_template" %}
 {{# each data }}
 <div class="carousel-inner-image item">
-  <div class="carousel-inner-image-inner" style="background:url('/space/{{ id }}/image/{{ image_id }}/thumb/constrain/width:268,height:180') no-repeat 50% 50%; background-size:100%;">&nbsp;</div>
+  <div class="carousel-inner-image-inner" style="background:url('/image/space/{{ id }}/{{ image_id }}/thumb/constrain/width:268,height:180') no-repeat 50% 50%; background-size:100%;">&nbsp;</div>
 </div>
 {{/each}}
 {% endtplhandlebars %}

@@ -21,6 +21,12 @@ from django.core.mail import send_mail
 from django.conf import settings
 import simplejson as json
 import urllib2
+import re
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 def contact(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
@@ -53,8 +59,10 @@ def contact(request, spot_id=None):
             if bot_test == '':
                 try:
                     send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)
-                except:
+                except Exception as e:
+                    logger.error('Contact failure: %s' % (e))
                     return HttpResponseRedirect('/sorry/' + spot_id)
+
             return HttpResponseRedirect('/thankyou/' + spot_id)
     else:
         form = ContactForm()
@@ -71,7 +79,11 @@ def contact(request, spot_id=None):
 def thank_you(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
 
-    back = request.GET['back'] if request.GET and 'back' in request.GET else contact_variables['back']
+    try:
+        back = request.GET['back']
+        validate_back_link(back)
+    except:
+        back = contact_variables['back']
 
     return render_to_response('spacescout_web/contact-thankyou.html', {
         'spot_id': spot_id,
@@ -101,6 +113,7 @@ def _contact_variables(request, spot_id):
         try:
             spot = Spot(spot_id).get()
         except SpotException as ex:
+            logger.error('Contact exception : %s' % (ex))
             raise Http404
 
         spot_name = spot["name"]
@@ -124,3 +137,8 @@ def _contact_variables(request, spot_id):
         'is_mobile': is_mobile,
         'back': back
     }
+
+
+def validate_back_link(back):
+    if not re.match(r'^(/|%2F)', back):
+        raise(Exception('Invalid Back Link'))
