@@ -16,17 +16,18 @@
     limitations under the License.
 
 -->
+{% load static %}
 <html lang="en">
     <head>
         <title>Illini Spaces &trade;</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-        <link type="text/css" rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
-        <link rel="stylesheet/less" type="text/css" href="/static/css/mobile.less" media="screen, handheld" />
-        <script type="text/javascript" src="/static/libs/less.js"></script>
+        <link type="text/css" rel="stylesheet" href="{% static 'libs/bootstrap/css/bootstrap-custom.css' %}" charset="utf-8" />
+        <link rel="stylesheet/less" type="text/css" href="{% static 'css/mobile.less' %}" media="screen, handheld" />
+        <script type="text/javascript" src="{% static 'libs/less.js' %}"></script>
 
-        <link rel="shortcut icon" href="/static/img/ico/favicon.ico">
+        <link rel="shortcut icon" href="{% static 'img/ico/favicon.ico' %}">
     </head>
 
     <body id="top">
@@ -34,9 +35,9 @@
 
             <div id="nav" style="position:relative;">
                 <div class="clearfix">
-                    <div class="logo"><h1 class="visuallyhidden">Illini Spaces &trade;</h1></div>
+                    <div class="logo"><h1 class="visuallyhidden">IlliniSpaces &trade;</h1></div>
                     <div class="actions">
-                        <a href='/' title="back"><img id="back_to_space_button" src="/static/img/details_arrow.png" alt="Back"/></button></a>
+                        <a href='/' title="back"><img id="back_to_space_button" src="{% static 'img/details_arrow.png' %}" alt="Back"/></button></a>
                     </div>
                 </div>
             </div>
@@ -44,11 +45,11 @@
             <div id="main_content" style="padding: 80px;" role="main" aria-labelledby="500_header">
                 <h2 id="500_header" class="contact-header">Internal Server Error (500)</h2>
                 <div>
-                    <img src="/static/img/scout.png" />
+                    <img src="{% static 'img/scout.png' %}" />
                     <br />
-                    Sorry! Scout was unable to fetch.
+                    Sorry! IlliniSpaces encountered an error.
                     <br />
-                    Return to the <a href="/">app</a>, or go to our <a href="http://www.washington.edu/itconnect/learn/tools/spacescout/">FAQ</a>.
+                    Return to the <a href="/">app</a>.
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-""" Copyright 2013 Board of Trustees, University of Illinois
+""" Copyright 2014 UW Information Technology, University of Washington
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -11,19 +11,19 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-    Description
-    =================================================================
-    Modifies the search arguments before send it to spotseeker_server.
 """
+from django import forms
 
-from spacescout_web.org_filters import SearchFilter
-import sys
 
-class Filter(SearchFilter):
-    def filter_args(self, args):
-        if 'shibboleth' in sys.modules and self.request.user.is_authenticated():
-            args['eppn'] = self.request.user.username
+class BaseForm(forms.Form):
+    def full_clean(self):
+        str_type = type("")
+        unicode_type = type(u"")
 
-        return args
+        data = self.data.copy()
+        for k, v in data.items():
+            if (type(v) == str_type) or type(v) == unicode_type:
+                data[k] = v.strip()
+        self.data = data
+        super(BaseForm, self).full_clean()
 

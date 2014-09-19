@@ -26,23 +26,26 @@
 <html lang="en">
 
     <head>
-        <title>Illini Spaces &trade; Find the Perfect Place to Study</title>
+        <title>IlliniSpaces &trade; Find the Perfect Place to Study</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<meta name="description" content="Searching for that perfect study spot? Illini Spaces helps University of Illinois students quickly locate campus spaces and resources to use for study or collaboration">
+		<meta name="description" content="Searching for that perfect study spot? IlliniSpaces helps University of Illinois students quickly locate campus spaces and resources to use for study or collaboration">
         {% if show_ios_smart_banner %}
         <meta name="apple-itunes-app" content="app-id=551472160">
         {% endif %}
 
+        {% load url from future %}
         {% load compress %}
         {% compress css %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/font-awesome.min.css" charset="utf-8" />
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-tokenfield.css" charset="utf-8" />
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/tokenfield-typeahead.css" charset="utf-8" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile.less" media="screen, handheld" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile-uiuc.less" media="screen, handheld" />
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/tablet.less" media="screen, handheld" />
-        {% block extra_compress_css %}{% endblock %}
         {% endcompress %}
+        {% block extra_compress_css %}{% endblock %}
 
         {% block extra_css %}{% endblock %}
 
@@ -56,7 +59,8 @@
 
 
         <script type="text/javascript">
-             var isMobile = true;
+             var isMobile = true,
+                 spacescout_static_url = '{{ STATIC_URL }}';
         </script>
 
         {% if ga_tracking_id %}
@@ -91,15 +95,11 @@
 
           <div id="container">
               {% block content %}{% endblock %}
-              <div class="back-top">
-                <div class="suggest">Didn't find one? <a href="{% url suggest-form %}">Suggest a space</a></div>
-                <button id="top_link" class="btn btn-inverse" type="button">Back to top</button>
-              </div>
 
               <div id="footer" class="clearfix" role="contentinfo">
                   <div class="pull-left copyright">
                       <a href="http://www.vpaa.uillinois.edu/policies/web_privacy.cfm" target="_blank">Privacy &amp; Terms</a> |
-                      <a href="about:blank" title="About Illini Spaces" target="_blank">About</a><br/>
+                      <a href="about:blank" title="About IlliniSpaces" target="_blank">About</a><br/>
                       Copyright &copy; 2012 Academic and Collaborative Applications, UW-IT<br/>
                       Parts Copyright &copy; University of Illinois Board of Trustees
                   </div>
@@ -107,35 +107,39 @@
           </div>
 
           <!-- jQuery -->
-          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
           <!-- Google Maps -->
           {% if gmaps_api_key %}
-          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3&key={{ gmaps_api_key }}&libraries=geometry&amp;sensor=false"></script>
+          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.15&key={{ gmaps_api_key }}&libraries=geometry&amp;sensor=false"></script>
           {% else %}
-          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?libraries=geometry&amp;sensor=false"></script>
+          <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.15&libraries=geometry&amp;sensor=false"></script>
           {% endif %}
 
-          {% compress js %}
+            {% compress js %}
             <script type="text/javascript" src="{{ STATIC_URL }}libs/cookie.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-transition.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-button.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-carousel.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-tooltip.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}libs/typeahead.bundle.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}libs/bootstrap/js/bootstrap-tokenfield.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/handlebars.js"></script>
-            
 			<script type="text/javascript" src="{{ STATIC_URL }}js/markerwithlabel.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}libs/jquery.lazyscrollloading-min.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/global.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/search.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/url.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/favorites.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/reviews.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/mobile.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/clustering.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/retina.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/analytics.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/uiuc.js"></script>
+            {% endcompress %}
 
+            {% block extra_js %}{% endblock %}
 
             {% if spaces %}
             <script type="text/javascript">
@@ -143,9 +147,7 @@
             </script>
             {% endif %}
 
-            {% block extra_js %}{% endblock %}
-          {% endcompress %}
-            <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
+            <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
 
     </body>
 </html>

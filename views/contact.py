@@ -14,13 +14,19 @@
 """
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from spacescout_web.forms.contact import ContactForm
+from spacescout_web.spot import Spot, SpotException
 from django.core.mail import send_mail
 from django.conf import settings
 import simplejson as json
-import sys
 import urllib2
+import re
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 def contact(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
@@ -53,13 +59,15 @@ def contact(request, spot_id=None):
             if bot_test == '':
                 try:
                     send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)
-                except:
+                except Exception as e:
+                    logger.error('Contact failure: %s' % (e))
                     return HttpResponseRedirect('/sorry/' + spot_id)
+
             return HttpResponseRedirect('/thankyou/' + spot_id)
     else:
         form = ContactForm()
 
-    return render_to_response('contact-form.html', {
+    return render_to_response('spacescout_web/contact-form.html', {
         'form': form,
         'back': back,
         'spot_name': spot_name,
@@ -71,9 +79,13 @@ def contact(request, spot_id=None):
 def thank_you(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
 
-    back = contact_variables['back']
+    try:
+        back = request.GET['back']
+        validate_back_link(back)
+    except:
+        back = contact_variables['back']
 
-    return render_to_response('contact-thankyou.html', {
+    return render_to_response('spacescout_web/contact-thankyou.html', {
         'spot_id': spot_id,
         'back': back,
     }, context_instance=RequestContext(request))
@@ -86,7 +98,7 @@ def sorry(request, spot_id=None):
     email = settings.FEEDBACK_EMAIL_RECIPIENT[0]
     #should maybe do something here ^. raise improperly configured exception if there are no emails in the list in settings.py
 
-    return render_to_response('contact-sorry.html', {
+    return render_to_response('spacescout_web/contact-sorry.html', {
         'spot_id': spot_id,
         'back': back,
         'email': email,
@@ -98,18 +110,16 @@ def _contact_variables(request, spot_id):
     spot_description = ''
 
     if spot_id is not None:
-        url = "{0}/space/{1}/json".format("http://" + request.get_host(), spot_id)
         try:
-            content = urllib2.urlopen(url).read()
-            params = json.loads(content)
-            if 'name' in params:
-                spot_name = params['name']
-            if 'extended_info' in params:
-                if 'location_description' in params['extended_info']:
-                    spot_description = params['extended_info']['location_description']
-        except urllib2.HTTPError as e:
-            spot_id = None
-            print >> sys.stderr, "E: ", e.code
+            spot = Spot(spot_id).get()
+        except SpotException as ex:
+            logger.error('Contact exception : %s' % (ex))
+            raise Http404
+
+        spot_name = spot["name"]
+        if 'extended_info' in spot:
+            if 'location_description' in spot['extended_info']:
+                spot_description = spot['extended_info']['location_description']
 
     if request.MOBILE == 1:
        is_mobile = True
@@ -127,3 +137,8 @@ def _contact_variables(request, spot_id):
         'is_mobile': is_mobile,
         'back': back
     }
+
+
+def validate_back_link(back):
+    if not re.match(r'^(/|%2F)', back):
+        raise(Exception('Invalid Back Link'))

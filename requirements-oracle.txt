@@ -4,8 +4,9 @@ oauth2
 django-compressor
 django-mobility
 django-templatetag-handlebars
+oauth_provider
 
 -e git+https://github.com/sbutler/django-shibboleth-remoteuser#egg=django-shibboleth-remoteuser-0.3.1
 
-cx_Oracle
+#cx_Oracle
 

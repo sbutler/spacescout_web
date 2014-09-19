@@ -24,27 +24,37 @@ from django.utils.datastructures import SortedDict
 from mobility.decorators import mobile_template
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
+from django.utils.translation import ugettext as _
+import types
+import re
 
 FIVE_MINUTE_CACHE = 300
 
-@mobile_template('{mobile/}app.html')
+@mobile_template('spacescout_web/{mobile/}app.html')
 def HomeView(request, template=None):
     # The preference order is cookie, config, then some static values
     # That fallback order will also apply if the cookie campus isn't in
     # settings.
     location = None
-    cookies = request.COOKIES
-    if "default_location" in cookies:
-        cookie_value = cookies["default_location"]
-        # The format of the cookie is this, urlencoded:
-        # lat,long,campus,zoom
-        location = urllib.unquote(cookie_value).split(',')[2]
 
-        if not hasattr(settings, "SS_LOCATIONS"):
-            location = None
+    if hasattr(settings, "SS_LOCATIONS"):
+        m = re.match(r'^/([a-z]+)/', request.path)
+        if m and m.group(1) in settings.SS_LOCATIONS:
+            location = m.group(1)
 
-        elif not location in settings.SS_LOCATIONS:
-            location = None
+    if location is None:
+        cookies = request.COOKIES
+        if "default_location" in cookies:
+            cookie_value = cookies["default_location"]
+            # The format of the cookie is this, urlencoded:
+            # lat,long,campus,zoom
+            location = urllib.unquote(cookie_value).split(',')[2]
+    
+            if not hasattr(settings, "SS_LOCATIONS"):
+                location = None
+
+            elif not location in settings.SS_LOCATIONS:
+                location = None
 
     if location is None:
         if hasattr(settings, 'SS_DEFAULT_LOCATION'):
@@ -67,8 +77,19 @@ def HomeView(request, template=None):
 
     consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
     client = oauth2.Client(consumer)
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+        }
+
+    if request.user and request.user.is_authenticated():
+        headers["XOAUTH_USER"] = "%s" % request.user.username
+
+    log_shared_space_reference(request, headers, client)
 
     buildings = json.loads(get_building_json(client))
+
+    favorites_json = get_favorites_json(headers, client)
 
     # This could probably be a template tag, but didn't seem worth it for one-time use
     #TODO: hey, actually it's probably going to be a Handlebars helper and template
@@ -83,6 +104,7 @@ def HomeView(request, template=None):
             pass
 
     params = {
+        'username' : request.user.username if request.user and request.user.is_authenticated() else '',
         'center_latitude': template_values['center_latitude'],
         'center_longitude': template_values['center_longitude'],
         'zoom_level': template_values['zoom_level'],
@@ -92,9 +114,12 @@ def HomeView(request, template=None):
         'by_distance_ratio': by_distance_ratio,
         'buildingdict': buildingdict,
         'spaces': spaces,
+        'favorites_json': favorites_json,
     }
 
-    return render_to_response(template, params, context_instance=RequestContext(request))
+    response = render_to_response(template, params, context_instance=RequestContext(request))
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 def get_key_for_search_args(search_args):
@@ -149,6 +174,9 @@ def fetch_open_now_for_campus(campus, use_cache=True, fill_cache=False, cache_pe
         zoom_level = location['ZOOM_LEVEL']
         distance = location.get('DISTANCE', '500')
 
+    # SPOT-1832.  Making the distance far enough that center of campus to furthest spot from the center
+    # can be found
+    distance = 1000
     consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
     client = oauth2.Client(consumer)
 
@@ -188,11 +216,25 @@ def get_space_json(client, search_args, use_cache, fill_cache, cache_period):
 
     values = fetch_space_json(client, search_args)
 
+    # this needs to look like a search result
+
+    data = json.loads(values)
+
+    # type needs to look like what /search query returns
+    for space in data:
+        if 'type' in space and isinstance(space['type'], types.ListType):
+            typelist = []
+            for t in space['type']:
+                typelist.append(_(t))
+
+            space["type"] = ','.join(typelist)
+
     if fill_cache:
         cache_key = get_key_for_search_args(search_args)
 
         cache.set(cache_key, values, cache_period)
-    return json.loads(values)
+
+    return data
 
 def fetch_space_json(client, search_args):
     query = []
@@ -217,3 +259,32 @@ def get_building_json(client):
         return content
 
     return '[]'
+
+
+#TODO: use the favorites view instead
+def get_favorites_json(headers, client):
+    url = "{0}/api/v1/user/me/favorites".format(settings.SS_WEB_SERVER_HOST)
+
+    resp, content = client.request(url, method='GET', headers=headers)
+
+    if resp.status == 200:
+        return content
+
+    return '[]'
+
+
+def log_shared_space_reference(request, headers, client):
+    # log shared space references
+    m = re.match(r'^/space/(\d+)/.*/([a-f0-9]{32})$', request.path)
+    if m:
+        try:
+            url = "{0}/api/v1/spot/{1}/shared".format(settings.SS_WEB_SERVER_HOST, m.group(1))
+
+            resp, content = client.request(url,
+                                           method='PUT',
+                                           body=json.dumps({ 'hash': m.group(2) }),
+                                           headers=headers)
+
+            # best effort, ignore response
+        except:
+            pass

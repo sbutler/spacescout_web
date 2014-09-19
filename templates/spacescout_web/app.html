@@ -1,4 +1,4 @@
-{% extends "base-desktop.html" %}
+{% extends "spacescout_web/base-desktop.html" %}
 
 {% block extra_css %}
 {% endblock %}
@@ -28,7 +28,24 @@
         window.default_location = "{{ default_location }}";
         window.default_zoom = {{ zoom_level }};
     }
-
+    var state = window.spacescout_url.parse_path(window.location.pathname);
+    if (state.hasOwnProperty('search') && window.default_location != state.campus) {
+        $('#location_select option').each(function (i) {
+            var location = $(this).val().split(',');
+            if (location[2] == state.campus) {
+                $(document).ready(function () {
+                    $('#location_select option:eq(' + i + ')').attr('selected', 'selected');
+                });
+                window.default_latitude = location[0];
+                window.default_longitude = location[1];
+                window.default_location = location[2];
+                window.default_zoom = parseInt(location[3]);
+            }
+        });
+    }
+    window.spacescout_authenticated_user = '{{ username }}';
+    window.spacescout_referrer = '{{ back }}';
+    window.spacescout_favorites_list = {{ favorites_json|safe }};
     $.ajaxSetup({
         headers: { "X-CSRFToken": '{{ csrf_token }}' }
     });
@@ -36,41 +53,41 @@
 {% endblock %}
 
 {% block content %}
+{% load static %}
 {% load i18n %}
 {% load templatetag_handlebars %}
 
     <div id="nav">
 
-        <div class="logo-container clearfix">
-
+        <div class="spacescout-header clearfix">
+          <div class="logo-container pull-left">
             <div class="logo">
-                <h1 id="app_header" class="visuallyhidden">Illini Spaces &trade;</h1>
+                <h1 id="app_header" class="visuallyhidden">IlliniSpaces &trade;</h1>
             </div>
-            <div class="location_container">
-                {% ifnotequal locations|length 1 %}
-                <span role="navigation" aria-labelledby="location_select_heading">
-                <label id="location_select_heading" for="location_select"  class="visuallyhidden">Select campus:</label>
-                <select id='location_select'>
-                    {% for key, value in locations.items %}
-                        <option value="{{ value.CENTER_LATITUDE }},{{ value.CENTER_LONGITUDE }},{{ key }},{{ value.ZOOM_LEVEL }}">{{ value.NAME }}</option>
-                    {% endfor %}
-                </select>
-                </span>
-                {% endifnotequal %}
-            </div>
-            <div class="user_context">
-                {% if user.is_authenticated %}
-                  <span>{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
-                  <!-- Hide until UW adds full support
-                  <a href="favorites">{% trans 'favorites' %} (<span class="favorites_count_container">0</span>)</a>
-                  {% tplhandlebars "favorites_count" %}{{count}}{% endtplhandlebars %}
-                  -->
-                  <span>|</span>
-                  <a href="{{ logout_link }}">{% trans 'logout' %}</a>
-                {% else %}
-                  {% trans 'salutation' %}&nbsp;<a href="{{ login_link }}">{% trans 'login' %}</a>
-                {% endif %}
-            </div>
+          </div>
+          <div class="location_container">
+            {% ifnotequal locations|length 1 %}
+            <span aria-labelledby="location_select_heading">
+              <label id="location_select_heading" for="location_select"  class="visuallyhidden">Select campus:</label>
+              <select id='location_select'>
+                {% for key, value in locations.items %}
+                <option value="{{ value.CENTER_LATITUDE }},{{ value.CENTER_LONGITUDE }},{{ key }},{{ value.ZOOM_LEVEL }}">{{ value.NAME }}</option>
+                {% endfor %}
+              </select>
+            </span>
+            {% endifnotequal %}
+          </div>
+          <div class="user_context pull-right">
+            {% if user.is_authenticated %}
+            <span>{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
+            <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
+            {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
+            <span>|</span>
+            <a id="logout_button" href="/logout">{% trans 'logout' %}</a>
+            {% else %}
+            {% trans 'salutation' %}&nbsp;<a id="login_button" href="/login">{% trans 'login' %}</a>
+            {% endif %}
+          </div>
         </div>
         <div class="filter_context" role= "search" aria-labelledby="filter_group_header">
           <h2 id="filter_group_header" class="visuallyhidden">Find Study Spaces by Specific Criteria</h2>
@@ -92,7 +109,7 @@
              <div class="inner-column">
                <div id="filter-clear">Filters Cleared</div>
                <div class="inner-block-left">
-   			  {% include "filters.html" %}
+   			  {% include "spacescout_web/filters.html" %}
                </div>
              </div>
              <div class="inner-row">
@@ -108,7 +125,7 @@
         <div id="map_canvas" aria-labelledby="map_header" aria-hidden="true"></div>
         {% tplhandlebars "map_controls" %}
             <div class="map-control-container">
-                <a href="#" title="Recenter map"><img id="center_all" src="/static/img/center_all.png" alt="Recenter map" name="image" style="display: none;" /></a>&nbsp;
+                <a href="#" title="Recenter map"><img id="center_all" src="{% static 'img/center_all.png' %}" alt="Recenter map" name="image" style="display: none;" /></a>&nbsp;
             </div>
         {% endtplhandlebars %}
 
@@ -117,10 +134,25 @@
                 <div class="space-detail">
                     <div class="space-detail-inner" id="detail_container_{{id}}" aria-labelledby="space-detail-name" tabindex="0">
                         <div class="space-detail-header">
-                          {% if false and user.is_authenticated %}<div class="space-detail-fav pull-left"><i class="fa fa-heart"></i></div>{% endif %}
-                            <h2 id="space-detail-name" class="space-detail-name"><span class="visuallyhidden">Space Details:</span> {{name}}</h2>
-                            <div class="space-detail-type">{{type}} {{#if capacity }}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{{/if}}</div>
-                            <a class="close" href="#" title="close"><img alt="close details" src="/static/img/x.png" /></a>
+                          <h2 id="space-detail-name" class="space-detail-name"><span class="visuallyhidden">Space Details:</span> <span>{{name}}</span></h2>
+                          <div class="space-detail-type">{{{type}}} {{#if capacity }}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{{/if}}</div>
+                          <a class="close" href="#" title="close"><img alt="close details" src="{% static 'img/x.png' %}" /></a>
+                          <div class="space-actions">
+                          	<a id="show_reviews" class="space-stars" href="javascript:void(0);" title="See all reviews for {{name}}">
+                                {{#each stars }}
+                                    <i class="fa {{icon}}"></i>
+                                {{/each}}
+                          	</a>
+                            <span id="space-average-rating-text" class="visuallyhidden">There are no reviews for {{ name }}</span>
+                            <span id="review_count">({{ review_count }})</span>
+                            <span class="divider"></span>
+                            <button id="favorite_space" title="Click to favorite {{name}}">
+                            	<span class="space-detail-fav space-detail-fav-unset">
+                            		<i class="fa fa-heart"></i>
+                            	</span> <span>{% trans 'favorite' %}</span>
+                            </button>
+                            <button id="share_space" title="Click to share {{name}}"><i class="fa fa-mail-forward"></i> {%trans 'share' %}</button>
+                          </div>
                         </div>
                         <div class="space-detail-body">
 
@@ -214,15 +246,15 @@
                                             <div class="space-info-detail pull-left">
 
                                                 {{#compare extended_info.noise_level "quiet" operator="=="}}
-                                                {% verbatim %}{% trans 'quiet' %}{% endverbatim %}
+                                                {% trans 'quiet' %}
                                                   {{^}}
                                                         {{#compare extended_info.noise_level "moderate" operator="=="}}
-                                                        {% verbatim %}{% trans 'moderate' %}{% endverbatim %}
+                                                        {% trans 'moderate' %}
                                                         {{^}}
                                                             {{#compare extended_info.noise_level "silent" operator="=="}}
-                                                            {% verbatim %}{% trans 'silent' %}{% endverbatim %}
+                                                            {% trans 'silent' %}
                                                             {{^}}
-                                                            {% verbatim %}{% trans 'variable' %}{% endverbatim %}
+                                                            {% trans 'variable' %}
                                                             {{/compare}}
                                                         {{/compare}}
                                                   {{/compare}}
@@ -255,14 +287,27 @@
                                         </li>
                                         {{/if}}
 
+                                        {{#if extended_info.hours_notes }}
+                                        <li class="clearfix">
+                                            <h3 class="space-info-label pull-left">Hours Notes</h3>
+                                            <div class="space-info-detail pull-left">
+                                                {{#if extended_info.hours_notes }}<p>{{{extended_info.hours_notes}}}</p>{{/if}}
+                                            </div>
+                                        </li>
+                                        {{/if}}
+
                                     </ul>
                                 </div>
 
-                                <div class="space-detail-report">
-                                    <a href="/contact/{{ id }}/"><img alt="" src="/static/img/uiuc_mail.png" />&nbsp;Report a problem with this space</a>
+				                <div class="space-ratings-and-reviews">
+                                  <div class="loading"></div>
                                 </div>
 
-                                <div class="space-detail-footer">This space was last updated on {{last_modified}} by<br/> {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
+                                <div class="space-detail-report">
+                                    <a href="/contact/{{ id }}/">Report a problem with this space</a>
+                                </div>
+
+                                <div class="space-detail-footer">This space was last updated on {{last_modified}} by {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
 
                             </div>
                         </div>
@@ -292,18 +337,18 @@
                                 <li class="clearfix view-details">
                                 <div class="space-detail-list-image pull-left">
                                     {{#if images.0.id}}
-                                    <div class="space-detail-list-image-inner lazyloader" data-src="space/{{id}}/image/{{images.0.id}}/thumb/constrain/width:150">&nbsp;</div>
+                                    <div class="space-detail-list-image-inner lazyloader" data-src="/image/space/{{id}}/{{images.0.id}}/thumb/constrain/width:150">&nbsp;</div>
                                     {{else}}
-                                    <div class="space-detail-list-image-inner" style="background: transparent url('/static/img/placeholder_noImage_bw.png') no-repeat 50% 50%; background-size: 150px;">&nbsp;</div>
+                                    <div class="space-detail-list-image-inner space-detail-no-image">&nbsp;</div>
                                     {{/if}}
 
                                 </div>
 
                                 <button id="{{id}}" class="space-detail-list-item pull-left" type="button" aria-label="Get space details for {{name}}" aria-owns="detail_container_{{id}}">
-                                    {% if false and user.is_authenticated %}<div class="space-detail-fav pull-right" style="display: none;"><i class="fa fa-heart"></i></div>{% endif %}
+                                    {% if user.is_authenticated %}<div class="space-detail-fav space-detail-fav-set pull-right" style="display: none;"><i class="fa fa-heart"></i></div>{% endif %}
                                     <div class="space-detail-name">{{name}}</div>
                                     <div class="space-detail-desc">{{extended_info.location_description}}</div>
-                                    <div class="space-detail-type-label">{{type}}</div>
+                                    <div class="space-detail-type-label">{{{type}}}</div>
                                     {{#if capacity}}<div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>{{/if}}
 
                                     <div class="space-detail-type clearfix">
@@ -340,15 +385,15 @@
                             <li class="clearfix view-details">
                                 <div class="space-detail-list-image pull-left">
                                   {{#if images.0.id }}
-                                    <div class="space-detail-list-image-inner lazyloader " data-src="space/{{id}}/image/{{images.0.id}}/thumb/constrain/width:150">&nbsp;</div>
+                                    <div class="space-detail-list-image-inner lazyloader " data-src="/image/space/{{id}}/{{images.0.id}}/thumb/constrain/width:150">&nbsp;</div>
                                   {{else}}
-                                    <div class="space-detail-list-image-inner" style="background: transparent url('/static/img/placeholder_noImage_bw.png') no-repeat 50% 50%; background-size: 150px;">&nbsp;</div>
+                                    <div class="space-detail-list-image-inner space-detail-no-image">&nbsp;</div>
                                   {{/if}}
                                 </div>
                                 <button  id="{{id}}" class="space-detail-list-item pull-left" type="button" aria-label="Get space details for {{name}}" aria-owns="detail_container_{{id}}">
                                     <div class="space-detail-name">{{name}}</div>
                                     <div class="space-detail-desc">{{extended_info.location_description}}</div>
-                                    <div class="space-detail-type-label">{{type}}</div>
+                                    <div class="space-detail-type-label">{{{type}}}</div>
                                     {{#if capacity}}<div class="space-detail-capacity">{{capacity}}&nbsp;Seats</div>{{/if}}
 
                                     <div class="space-detail-type clearfix">
@@ -377,5 +422,7 @@
             </div>
         </div>
     </div>
+
+    {% include "spacescout_web/reviews.html" %}
 
 {% endblock %}
