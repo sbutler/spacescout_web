@@ -18,6 +18,7 @@
 
     sbutler1@illinois.edu: fix obvious JSHint bugs.
     sbutler1@illinois.edu: clean up indenting and hide non-global vars/functions
+    sbutler1@illinois.edu: merge v2.0 changes.
 */
 
 
@@ -135,11 +136,11 @@
     function _createMarker(spots, group_center) {
         var num_spots = spots.length;
         var main_icon = {
-            url: 'static/img/pins/pin00@2x.png',
+            url: static_url('img/pins/pin00@2x.png'),
             scaledSize: new GM.Size(40,40)
         };
         var alt_icon = {
-            url: 'static/img/pins/pin00-alt@2x.png',
+            url: static_url('img/pins/pin00-alt@2x.png'),
             scaledSize: new GM.Size(40,40)
         };
 
@@ -239,6 +240,7 @@
 
         scrollToTop('info_list');
         $('.loading').slideUp('fast');
+        data_loaded(visible_markers.length);
     }
 
     function _clearMap() {

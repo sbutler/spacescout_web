@@ -21,6 +21,7 @@
     sbutler1@illinois.edu: fix obvious JSHint bugs.
     sbutler1@illinois.edu: formatting fixes plus hide non-global
       variables/functions.
+    sbutler1@illinois.edu: v2.0 merges.
 */
 
 var requests = [];
@@ -35,13 +36,13 @@ var requests = [];
         if (spacedata.images.length > 0) {
             for (var i=0; i < spacedata.images.length; i++) {
                 var image_id = spacedata.images[i].id;
-                image_url = "background:url(/space/" + space_id + "/image/" + image_id + "/thumb/constrain/width:500)";
+                image_url = "background:url(/image/space/" + space_id + "/" + image_id + "/thumb/constrain/width:500)";
                 div_string = "<div class='carousel-inner-image item'><div class='carousel-inner-image-inner' style='" + image_url + "'>&nbsp;</div></div>";
                 elements.push(div_string);
             }
         } else {
             image_url = "background:url(/static/img/placeholder_noImage_bw.png)";
-            div_string = "<div class='carousel-inner-image item'><div class='carousel-inner-image-inner' style='" + image_url + "; background-size: 500px'>&nbsp;</div></div>";
+            div_string = "<div class='carousel-inner-image item'><div class='carousel-inner-image-inner space-detail-no-image' style='background-size: 500px'>&nbsp;</div></div>";
             elements.push(div_string);
         }
         return new H.SafeString(elements.join('\n'));
@@ -343,6 +344,13 @@ var requests = [];
     }
     window.weekday_from_day = weekday_from_day;
 
+    function monthname_from_month(month) {
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        return (month >=0 && month < 12) ? months[month] : '';
+    }
+    window.monthname_from_month = monthname_from_month;
+
     function _formatLocationFilter(data) {
         var source = $('#building_list').html();
         var template = H.compile(source);
@@ -371,7 +379,7 @@ var requests = [];
         $('#e9.building-location').trigger("liszt:updated");
     }
 
-    function _getLocationBuildings() {
+    function get_location_buildings() {
         // populate the location filter list
         var url = '/buildings';
         if (window.default_location !== null) {
@@ -382,6 +390,7 @@ var requests = [];
             success: _formatLocationFilter
         });
     }
+    window.get_location_buildings = get_location_buildings;
 
     // Found at http://stackoverflow.com/questions/476679/preloading-images-with-jquery
     function _preloadImages(arrayOfImages) {
@@ -393,21 +402,6 @@ var requests = [];
     }
 
     $(document).ready(function() {
-/*
-        //removed because we use single pin image
-        var pinimgs = [];
-        for (var i = 1; i <= 30; i++) {
-            if (i < 10) {
-                pinimgs.push('/static/img/pins/pin0' + i + '.png');
-                pinimgs.push('/static/img/pins/pin0' + i + '-alt.png');
-            }
-            else {
-                pinimgs.push('/static/img/pins/pin' + i + '.png');
-                pinimgs.push('/static/img/pins/pin' + i + '-alt.png');
-            }
-        }
-        _preloadImages(pinimgs);
-*/
         if ($.cookie('default_location')) {
             $('#location_select').val($.cookie('default_location'));
         }
@@ -433,21 +427,9 @@ var requests = [];
             run_custom_search();
 
             window.update_count = true;
-            _getLocationBuildings();
-            $.cookie('default_location', $(this).val());
-            reset_location_filter();
+            $.cookie('default_location', $(this).val(), { path: '/' });
+            window.spacescout_url.push();
         });
-
-        // handle clicking on map centering buttons
-        $('#center_all').live('click', function (e) {
-            e.preventDefault();
-            if (window.spacescout_map.getZoom() != window.default_zoom) {
-                window.spacescout_map.setZoom(parseInt(window.default_zoom));
-            }
-            window.spacescout_map.setCenter(new GM.LatLng(window.default_latitude, window.default_longitude));
-        });
-
-        _getLocationBuildings();
 
         // handle checkbox and radio button clicks
         $('.checkbox input:checkbox').click(function () {
@@ -491,6 +473,11 @@ var requests = [];
             if (e.keyCode == escape_key_code) {
                 if ($('#filter_block').is(':visible')) {
                     $('#filter_block').slideUp(400, function () {
+                        var $icon = $('.fa-angle-double-up');
+                        if ($icon.length) {
+                            $icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
+                        }
+
                         //mobile style stuff
                         if ($('#container').attr("style")) {
                             $('#container').height('auto');
@@ -515,6 +502,7 @@ var requests = [];
 //          $('.count').hide();
 //          $('.spaces').hide();
             run_custom_search();
+            window.spacescout_url.push();
             $('#filter_button').focus();
         });
 
@@ -644,27 +632,29 @@ var requests = [];
             position: spaceLatLng,
             map: map,
             icon: {
-                url: '/static/img/pins/pin00@2x.png',
+                url: static_url('img/pins/pin00@2x.png'),
                 scaledSize: new GM.Size(40,40)
             }
         });
 
     }
 
-    function replaceUrls(){
+    function replaceReservationNotesUrls(){
         // Replace urls in reservation notes with actual links.
-        var text = $("#ei_reservation_notes").html();
-        if (text.indexOf('<a') > -1) {
-            return;
-        }
-        var patt = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
-        var url = patt.exec(text);
-        if (url !== null) {
-            text = text.replace(url, "<a href='" + url + "' target='_blank'>" + url + "</a>");
-            $("#ei_reservation_notes").html(text);
-        }
+        $("#ei_reservation_notes").each(function () {
+            var text = $(this).html();
+            if (text.indexOf('<a') > -1) {
+                return;
+            }
+            var patt = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+            var url = patt.exec(text);
+            if (url !== null) {
+                text = text.replace(url, "<a href='" + url + "' target='_blank'>" + url + "</a>");
+                $("#ei_reservation_notes").html(text);
+            }
+        });
     }
-    window.replaceUrls = replaceUrls;
+    window.replaceReservationNotesUrls = replaceReservationNotesUrls;
 
     function closeSpaceDetails() {
         var the_spot_id = $('.space-detail-inner').attr("id");
@@ -678,6 +668,11 @@ var requests = [];
         $(the_spot_id).focus();
     }
     window.closeSpaceDetails = closeSpaceDetails;
+
+    function static_url(base) {
+        return window.spacescout_static_url + base;
+    }
+    window.static_url = static_url;
 
 })(Handlebars, jQuery, google.maps);
 

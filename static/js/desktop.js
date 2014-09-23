@@ -21,10 +21,11 @@
     sbutler1@illinois.edu: fix obvious JSHint bugs
     sbutler1@illinois.edu: formatting fixes plus hide non-global
       variables/functions.
+    sbutler1@illinois.edu: merge v2.0 changes.
 */
 
-// H = Handlebars, $ = jQuery
-(function (H, $) {
+// H = Handlebars, BH = Bloodhound, $ = jQuery
+(function (H, BH, $) {
     window.speed = 600;
 
     H.registerHelper('ifany', function(a, b) {
@@ -35,12 +36,63 @@
     });
 
     $(document).ready(function() {
+        // share destination typeahead
+        if ($('#id_recipient').length) {
+            var $node = $('#id_recipient');
+
+            var engine = new BH({
+                datumTokenizer: function (d) {
+                    return BH.tokenizers.whitespace(d.email);
+                },
+                queryTokenizer: BH.tokenizers.whitespace,
+                limit: 15,
+                remote: 'web_api/v1/directory/?q=%QUERY'
+            });
+
+            engine.initialize();
+
+            $node.addClass('tokenfield');
+            $node.tokenfield({
+                delimiter: [',', '\t', ' '],
+                createTokensOnBlur: true,
+                typeahead: [null, {
+                    displayKey: 'email',
+                    minLength: 3,
+                    source: engine.ttAdapter()
+                }]
+            });
+
+            return;
+        }
+
+        $('a#suggest').click(function (e) {
+            if (window.location.pathname != "/") {
+                window.location.href = '/suggest/?back=' + encodeURIComponent(window.location.pathname);
+            } else {
+                window.location.href = '/suggest/';
+            }
+        });
+
 
         _desktopContent();
 
         // check if a map_canvas exists... populate it
         if ($("#map_canvas").length == 1) {
             initialize();
+	          
+            // Update dimensions on resize
+	          $(document).resize(function () {
+                // desktop
+                _desktopContent();
+
+                // if the space details is already open
+                if ($('.space-detail-container').is(":visible")) {
+                    $('.space-detail-container').height($('#map_canvas').height());
+                    $('.space-detail-body').height($('.space-detail').height() - 98);
+
+                    resizeCarouselMapContainer();
+                }
+	          });
         }
 
         // show filter panel
@@ -48,6 +100,8 @@
             var $block = $("#filter_block");
 
             if ($block.css('display') == 'none') {
+                get_location_buildings();
+
                 // reflect current filter
                 if (window.hasOwnProperty('spacescout_search_options')) {
                     clear_filter();
@@ -74,9 +128,10 @@
             }
         });
 
-        $('#neighboring').blur(function() {
-            $('#cancel_results_button').focus();
-        });
+        // Remove stealing focus
+        //$('#neighboring').blur(function() {
+        //    $('#cancel_results_button').focus();
+        //});
 
         // clear filters
         $('#cancel_results_button').click(function() {
@@ -94,52 +149,67 @@
 
 
         // handle view details click
-        $('.view-details').live('click', function(e){
+        $(document).on('click', '.view-details', function(e){
 
             // get the space id
             var id =  $(this).find('.space-detail-list-item').attr('id');
 
             e.preventDefault();
-
-            // clear any uneeded ajax window.requests
-            for (var i = 0; i < window.requests.length; i++) {
-                window.requests[i].abort();
-            }
-            window.requests.push(
-                $.ajax({
-                    url: '/space/'+id+'/json/',
-                    success: _showSpaceDetails
-                })
-            );
-
              // clear previously selected space
             $('#info_items li').removeClass('selected');
-            //highlight the selected space
-            $(this).addClass('selected');
+
+            _fetchSpaceDetails(id);
+
+            // Update location hash
+            window.spacescout_url.push(id);
 
         });
 
-        $('.space-detail-container .close').live('click', function(e) {
+        $(document).on('loadSpaceDetail', function (e, id) {
+            if (id) {
+                $('#info_items li').removeClass('selected');
+                _fetchSpaceDetails(id);
+            }
+        });
+
+        $(document).on('searchResultsLoaded', function (e, data) {
+            $('#space_count_container .count').html(data.count);
+        });
+
+        $('#login_button').click(function (e) {
             e.preventDefault();
-            closeSpaceDetails();
+            window.location.href = '/login' +
+                '?next=' + encodeURIComponent(window.location.pathname);
+        });
+
+        $('#logout_button').click(function (e) {
+            e.preventDefault();
+            window.location.href = '/logout' +
+                '?next=' + encodeURIComponent(window.location.pathname);
+        });
+
+        $('a span.favorites_count_container').parent().click(function (e) {
+            e.preventDefault();
+            window.location.href = '/favorites' +
+                '?back=' + encodeURIComponent(window.location.pathname);
         });
     });
 
-    // Update dimensions on resize
-    $(window).resize(function(){
-
-        // desktop
-        _desktopContent();
-
-        // if the space details is already open
-        if ($('.space-detail-container').is(":visible")) {
-            $('.space-detail-container').height($('#map_canvas').height());
-            $('.space-detail-body').height($('.space-detail').height() - 98);
-
-            resizeCarouselMapContainer();
+    function _fetchSpaceDetails(id) {
+        // clear any uneeded ajax window.requests
+        for (var i = 0; i < window.requests.length; i++) {
+            window.requests[i].abort();
         }
 
-    });
+        // fetch and paint details
+        window.requests.push(
+            $.ajax({
+                url: '/space/'+id+'/json/',
+                success: _showSpaceDetails
+            })
+        );
+    }
+
 
     // Show space details (sliding transition)
     function _showSpaceDetails(data) {
@@ -147,15 +217,41 @@
 
         $.event.trigger('desktop_beforeShowSpaceDetailsData', data);
 
-        var last_mod= new Date(data["last_modified"]);
+        var last_mod= new Date(data.last_modified);
         var month = last_mod.getMonth();
         var day = last_mod.getDate();
         var year = last_mod.getFullYear();
-        data["last_modified"] = month + "/" + day + "/" + year;
+        data.last_modified = month + "/" + day + "/" + year;
+
+        // campuses match?
+        if (data.extended_info.hasOwnProperty('campus')) {
+            $('#location_select option').each(function (i) {
+                var location = $(this).val().split(',');
+
+                if (location[2] == data.extended_info.campus) {
+                    if (!$(this).is(':selected')) {
+                        $(this).attr('selected', 'selected');
+                        $(this).trigger('change');
+                    }
+                }
+            });
+        }
 
         // check to see if the space has the following
-        data["has_notes"] = ( data.extended_info.access_notes || data.extended_info.reservation_notes );
-        data["has_resources"] = ( data.extended_info.has_computers || data.extended_info.has_displays || data.extended_info.has_outlets || data.extended_info.has_printing || data.extended_info.has_projector || data.extended_info.has_scanner || data.extended_info.has_whiteboards );
+        data.has_notes = ( data.extended_info.access_notes || data.extended_info.reservation_notes );
+        data.has_resources = ( data.extended_info.has_computers || data.extended_info.has_displays || data.extended_info.has_outlets || data.extended_info.has_printing || data.extended_info.has_projector || data.extended_info.has_scanner || data.extended_info.has_whiteboards );
+        data.review_count = ( data.extended_info.review_count ) || 0;
+        data.stars = [];
+        var rating = parseFloat(data.extended_info.rating) || 0.0;
+        for (var star_pos = 1; star_pos <= 5; star_pos++) {
+            if (rating == star_pos - 0.5) {
+                data.stars.push({ "icon": "fa-star-half-o" });
+            } else if (star_pos <= rating) {
+                data.stars.push({ "icon": "fa-star" });
+            } else {
+                data.stars.push({ "icon": "fa-star-o" });
+            }
+        }
 
         $.event.trigger('desktop_afterShowSpaceDetailsData', data);
 
@@ -175,10 +271,8 @@
         $('.space-detail-inner').show();
         $('.space-detail-container').show();
 
-        //set focus on the closing x
-
         $('.space-detail-container').height($('#map_canvas').height());
-        $('.space-detail-body').height($('.space-detail').height() - 98);
+        $('.space-detail-body').height($('.space-detail').height() - 128);
 
         //TODO: make these identical anonymous callback functions a real named function.  Had unknown scope problems doing this before
         if (!open) {
@@ -209,57 +303,32 @@
 
         initializeCarousel();
 
-        replaceUrls();
+        replaceReservationNotesUrls();
+
+        $('.space-detail-header .close').on('click', function(e){
+            e.preventDefault();
+            window.spacescout_url.push();
+            closeSpaceDetails();
+        });
 
         // set up favorites
-        var fav_icon = $('.space-detail-container .space-detail-fav');
+        window.spacescout_favorites.update_favorites_button(data.id);
 
-        if (fav_icon.is(':visible')) {
-            var title = 'Favorite this space';
+        setupRatingsAndReviews(data);
+        loadRatingsAndReviews(data.id, $('.space-reviews-content'), $('.space-actions'));
 
-            if (window.spacescout_favorites.is_favorite(data.id)) {
-                fav_icon.addClass('space-detail-fav-set');
-                title = 'Remove this space from favorites';
-            } else {
-                fav_icon.removeClass('space-detail-fav-set');
-            }
+        // set up share space
+        $('button#share_space').unbind('click');
+        $('button#share_space').click(function (e) {
+            window.location.href = '/share/' + data.id
+                + '?back=' + encodeURIComponent(window.location.pathname);
+        });
 
-            fav_icon.unbind();
-            fav_icon.click(function (e) {
-                var list_item = $('button#' + data.id + ' .space-detail-fav');
+        //highlight the selected space
+        $('button#' + data.id).closest('.view-details').addClass('selected');
 
-                window.spacescout_favorites.toggle(
-                    data.id,
-                    function () {
-                        fav_icon.addClass('space-detail-fav-set');
-                        list_item.show();
-                        fav_icon.tooltip('hide');
-                        fav_icon.data('tooltip', false);
-                        fav_icon.tooltip({
-                            title: 'Remove this space from Favorites',
-                            placement: 'right'
-                        });
-                        fav_icon.tooltip('show');
-                    },
-                    function () {
-                        fav_icon.removeClass('space-detail-fav-set');
-                        list_item.hide();
-                        fav_icon.tooltip('hide');
-                        fav_icon.data('tooltip', false);
-                        fav_icon.tooltip({
-                            title: 'Favorite this space',
-                            placement: 'right'
-                        });
-                        fav_icon.tooltip('show');
-                    }
-                );
-           });
-
-           fav_icon.tooltip({placement: 'right', title: title});
-       }
-
-       // Set focus on details container
-       $('.space-detail-inner').focus();
+        //set focus on the closing x
+        $('a.close').focus();
     }
 
     // Desktop display defaults
@@ -277,4 +346,4 @@
         //$('.loading').height(contentH);
     }
 
-})(Handlebars, jQuery);
+})(Handlebars, Bloodhound, jQuery);

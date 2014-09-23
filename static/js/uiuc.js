@@ -55,4 +55,17 @@
         data.has_notes = data.has_notes || data.extended_info.reservation_url;
     } );
 
+    /* Handle encoding and decoding of our custom search terms. */
+    $(document).on( 'url_afterEncodeSearchTerms', function (event, terms, opts) {
+        if (opts.open_anytime) {
+            terms.push('open:any');
+        }
+    } );
+    $(document).on( 'url_afterDecodeSearchTerms', function (event, terms, opts) {
+        if (opts.open_at == 'any') {
+            delete opts.open_at;
+            opts.open_anytime = 1;
+        }
+    } );
+
 })(jQuery, Handlebars);

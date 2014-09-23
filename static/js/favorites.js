@@ -18,7 +18,9 @@
     =================================================================
 
 */
-(function(){
+
+/* H = Handlebars, $ = jQuery */
+(function(H, $){
 
     $(document).ready(function () {
         window.spacescout_favorites.favorites = window.spacescout_favorites_list;
@@ -42,7 +44,7 @@
                 template;
 
             if (source.length) {
-                template = Handlebars.compile(source.html().trim());
+                template = H.compile(source.html().trim());
                 $(this.k.favorites_count_container).each(function () {
                     $(this).html(template({count: self.favorites ? self.favorites.length : 0}));
                 });
@@ -50,7 +52,7 @@
 
             source = $(self.k.favorites_total_template);
             if (source.length) {
-                template = Handlebars.compile(source.html().trim());
+                template = H.compile(source.html().trim());
                 $(this.k.favorites_total_container).each(function () {
                     var total = self.favorites ? self.favorites.length : 0,
                         plural = (total == 1) ? '' : 's';
@@ -62,72 +64,72 @@
 
         update_search_result: function () {
             var self = this,
-                detail_node = $('div[id^=detail_container_]'),
-                detail_id = detail_node.length ? parseInt(detail_node.prop('id').match(/^detail_container_(\d+)$/)[1]) : null;
+                $detail_node = $('div[id^=detail_container_]'),
+                detail_id = $detail_node.length ? parseInt($detail_node.prop('id').match(/^detail_container_(\d+)$/)[1]) : null;
 
             $('#info_items .view-details button .space-detail-fav').each(function () {
-                var node = $(this),
-                    id = parseInt(node.parent().prop('id'));
+                var $node = $(this),
+                    id = parseInt($node.parent().prop('id'));
 
                 if (self.is_favorite(id)) {
-                    node.show();
+                    $node.show();
                     if (id == detail_id) {
-                        $('.space-detail-fav', detail_node).removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
+                        $('.space-detail-fav', $detail_node).removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
                     }
                 } else {
-                    node.hide();
+                    $node.hide();
                     if (id == detail_id) {
-                        $('.space-detail-fav', detail_node).removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
+                        $('.space-detail-fav', $detail_node).removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
                     }
                 }
             });
         },
 
         update_cards: function () {
-            var container = $(this.k.favorites_card_container),
-                campuses = {}, campus, campus_name,
-                source, template, i, j, n, blank, campus_select, opts,
-                self = this,
-                insert_card = function (i, space) {
-                    var spot = $('spot_' + space.id),
-                        source = $(self.k.favorites_card_template).html(),
-                        template = Handlebars.compile(source),
-                        type = [], card;
+            var $container = $(this.k.favorites_card_container),
+                self = this;
 
-                    if ($.isArray(space.type)) {
-                        $.each(space.type, function () {
-                            type.push(gettext(this));
-                        });
-                    }
+            var insert_card = function (i, space) {
+                var type = [];
+                if ($.isArray(space.type)) {
+                    $.each(space.type, function () {
+                        type.push(gettext(this));
+                    });
+                }
 
-                    space.type = type.join(', ');
-                    space.extended_info.noise_level = gettext(space.extended_info.noise_level);
-                    space.extended_info.food_nearby = gettext(space.extended_info.food_nearby);
-                    space.has_reservation_notes = ( space.extended_info.reservation_notes != null);
-                    space.has_notes = ( ( space.extended_info.access_notes != null) || space.has_reservation_notes );
-                    space.has_resources = ( space.extended_info.has_computers != null ||
-                                            space.extended_info.has_displays != null ||
-                                            space.extended_info.has_outlets != null ||
-                                            space.extended_info.has_printing != null ||
-                                            space.extended_info.has_projector != null ||
-                                            space.extended_info.has_scanner != null ||
-                                            space.extended_info.has_whiteboards != null );
+                space.type = type.join(', ');
+                space.extended_info.noise_level = gettext(space.extended_info.noise_level);
+                space.extended_info.food_nearby = gettext(space.extended_info.food_nearby);
+                space.has_reservation_notes = ( space.extended_info.reservation_notes );
+                space.has_notes = ( ( space.extended_info.access_notes ) || space.has_reservation_notes );
+                space.has_resources = ( space.extended_info.has_computers ||
+                                        space.extended_info.has_displays ||
+                                        space.extended_info.has_outlets ||
+                                        space.extended_info.has_printing ||
+                                        space.extended_info.has_projector ||
+                                        space.extended_info.has_scanner ||
+                                        space.extended_info.has_whiteboards );
 
-                    card = $(template(space));
+                var source = $(self.k.favorites_card_template).html();
+                var template = H.compile(source);
+                var $card = $(template(space));
 
-                    if (spot.length == 0) {
-                        container.append(card);
-                    }
+                var $spot = $('spot_' + space.id);
+                if ($spot.length === 0) {
+                    $container.append($card);
+                }
 
-                    $.event.trigger('favoriteCardLoaded', [ card, space ]);
-                };
+                $.event.trigger('favoriteCardLoaded', [ $card, space ]);
+            };
 
-            if (container.length == 1 && $.isArray(this.favorites)) {
+            if ($container.length == 1 && $.isArray(this.favorites)) {
+                var campuses = {};
+
                 // sort by campus
                 $.each(this.favorites, function () {
-                    if (campuses != null) {
-                        if (this.extended_info.hasOwnProperty('campus')
-                            && this.extended_info.campus.length) {
+                    if (campuses) {
+                        if (this.extended_info.hasOwnProperty('campus') &&
+                            this.extended_info.campus.length) {
                             if (campuses.hasOwnProperty(this.extended_info.campus)) {
                                 campuses[this.extended_info.campus].push(this);
                             } else {
@@ -140,36 +142,36 @@
                     }
                 });
 
-                blank = Handlebars.compile($('#blank_card').html())({ back: window.spacescout_referrer });
-                campus_select = $('#location_select');
+                var blank = H.compile($('#blank_card').html())({ back: window.spacescout_referrer });
+                var $campus_select = $('#location_select');
 
-                if (campuses && Object.keys(campuses).length > 0
-                    && (Object.keys(campuses).length > 1
-                        || !campuses.hasOwnProperty($('option:selected', campus_select).val().split(',')[2]))) {
-                    template = Handlebars.compile($('#campus_label').html());
+                if (campuses && Object.keys(campuses).length > 0 &&
+                    (Object.keys(campuses).length > 1 ||
+                     !campuses.hasOwnProperty($('option:selected', $campus_select).val().split(',')[2]))) {
+                    var template = H.compile($('#campus_label').html());
 
-                    opts = $('option', campus_select);
-                    i = campus_select.prop('selectedIndex');
+                    var $opts = $('option', $campus_select);
+                    var i = $campus_select.prop('selectedIndex');
 
-                    for (j = 0; j < opts.size(); j += 1) {
-                        campus = $(opts[i]).val().split(',')[2];
-                        campus_name = opts[i].innerHTML;
-                        i = ((i + 1) % opts.size());
+                    for (var j = 0; j < $opts.length; j += 1) {
+                        var campus = $($opts[i]).val().split(',')[2];
+                        var campus_name = $opts[i].innerHTML;
+                        i = ((i + 1) % $opts.length);
 
-                        container.append(template({ campus: campus_name + ' Campus' }));
+                        $container.append(template({ campus: campus_name + ' Campus' }));
 
                         if (campuses.hasOwnProperty(campus)) {
                             $.each(campuses[campus], insert_card);
                         }
 
                         if (blank) {
-                            container.append(blank);
+                            $container.append(blank);
                             blank = null;
                         }
                     }
                 } else {
                     $.each(this.favorites, insert_card);
-                    container.append(blank);
+                    $container.append(blank);
                 }
 
                 replaceReservationNotesUrls();
@@ -179,31 +181,32 @@
         },
 
         update_favorites_button: function (id) {
-            var fav_button = $('button#favorite_space'),
-                fav_icon = $('.space-detail-fav', fav_button),
-                fav_icon_i = $('i', fav_icon),
-                setFavoritedButton = function (id) {
-                    var title = fav_button.attr('title').replace(/ favorite /, ' unfavorite ');
+            var $fav_button = $('button#favorite_space'),
+                $fav_icon = $('.space-detail-fav', $fav_button);
 
-                    fav_icon.removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
-                    fav_icon.parent().find('span:last').text(gettext('favorited'));
-                    fav_button.attr('title', title);
-                    if (id) {
-                        $('button#' + id + ' .space-detail-fav').show();
-                    }
-                },
-                unsetFavoritedButton = function(id) {
-                    var title = fav_button.attr('title').replace(/ unfavorite /, ' favorite ');
+            var setFavoritedButton = function (id) {
+                var title = $fav_button.attr('title').replace(/ favorite /, ' unfavorite ');
 
-                    fav_icon.removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
-                    fav_icon.parent().find('span:last').text(gettext('favorite'));
-                    fav_button.attr('title', title);
-                    if (id) {
-                        $('button#' + id + ' .space-detail-fav').hide();
-                    }
-                };
+                $fav_icon.removeClass('space-detail-fav-unset').addClass('space-detail-fav-set');
+                $fav_icon.parent().find('span:last').text(gettext('favorited'));
+                $fav_button.attr('title', title);
+                if (id) {
+                    $('button#' + id + ' .space-detail-fav').show();
+                }
+            };
 
-            if (fav_icon.is(':visible')) {
+            var unsetFavoritedButton = function(id) {
+                var title = $fav_button.attr('title').replace(/ unfavorite /, ' favorite ');
+
+                $fav_icon.removeClass('space-detail-fav-set').addClass('space-detail-fav-unset');
+                $fav_icon.parent().find('span:last').text(gettext('favorite'));
+                $fav_button.attr('title', title);
+                if (id) {
+                    $('button#' + id + ' .space-detail-fav').hide();
+                }
+            };
+
+            if ($fav_icon.is(':visible')) {
                 var authenticated_user = window.spacescout_authenticated_user.length > 0;
 
                 if (authenticated_user && window.spacescout_favorites.is_favorite(id)) {
@@ -212,9 +215,9 @@
                     unsetFavoritedButton();
                 }
 
-                fav_icon.unbind();
+                $fav_icon.unbind();
 
-                fav_button.click(function (e) {
+                $fav_button.click(function (e) {
                     if (!authenticated_user) {
                         $.cookie('space_set_favorite', JSON.stringify({ id: id }));
                         window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
@@ -253,8 +256,7 @@
                     if ($.isArray(data)) {
                         self.favorites = data;
                         self.update();
-                    }
-                    else {
+                    } else {
                         console.log('Unrecognized favorites response: ' + data);
                     }
                 },
@@ -293,10 +295,8 @@
         },
 
         index: function (id) {
-            var i;
-
             if (this.favorites) {
-                for (i = 0; i < this.favorites.length; i += 1) {
+                for (var i = 0; i < this.favorites.length; i += 1) {
                     if (this.favorites[i].id == id) {
                         return i;
                     }
@@ -327,9 +327,8 @@
                     data: JSON.stringify({}),
                     type: "PUT",
                     success: function (data) {
-                        var i = 0;
                         if (self.favorites) {
-                            for (i = 0; i < self.favorites.length; i++) {
+                            for (var i = 0; i < self.favorites.length; i++) {
                                 // Bail out early - SPOT-1651
                                 if (self.favorites[i].id == id) {
                                     if (on_set) {
@@ -403,9 +402,9 @@
                         c_h = c[0].length ? parseInt(c[0]) : 0,
                         c_m = c[1].length ? parseInt(c[1]) : 0;
                     
-                    if ((hour > o_h && hour < c_h)
-                        || (hour == o_h && minute > o_m)
-                        || (hour == c_h && minute < c_m)) {
+                    if ((hour > o_h && hour < c_h) ||
+                        (hour == o_h && minute > o_m) ||
+                        (hour == c_h && minute < c_m)) {
                         $('.space-detail-is-open', card).show();
                         $('.space-detail-is-closed', card).hide();
                     }
@@ -417,17 +416,17 @@
             $('.space-info-hours-today span', card).html(formatted);
             
             $('.space-info-more-detail a', card).click(function (e) {
-                var more_div = $(e.target).parent();
+                var $more_div = $(e.target).parent();
                 
-                more_div.slideUp('fast');
-                more_div.next().slideDown('fast');
+                $more_div.slideUp('fast');
+                $more_div.next().slideDown('fast');
             });
             
             $('.space-info-less-detail a', card).click(function (e) {
-                var ul = $(e.target).closest('ul'),
-                    reviews = $('.space-reviews-review', ul);
+                var $ul = $(e.target).closest('ul'),
+                    $reviews = $('.space-reviews-review', $ul);
                 
-                ul.slideUp('fast', function () {
+                $ul.slideUp('fast', function () {
                     var top = card.offset().top,
                         scrolltop = $(document).scrollTop();
 
@@ -437,31 +436,31 @@
                         }, 400, 'swing');
                     }
                 });
-                ul.prev().slideDown('fast');
+                $ul.prev().slideDown('fast');
                 
-                if (reviews.length > window.spacescout_reviews.pagination) {
-                    reviews.each(function (i) {
+                if ($reviews.length > window.spacescout_reviews.pagination) {
+                    $reviews.each(function (i) {
                         if (i >= window.spacescout_reviews.pagination) {
                             $(this).hide();
                         }
                     });
 
-                    $('.more-space-reviews', ul).show();
+                    $('.more-space-reviews', $ul).show();
                 }
             });
             
             $('.space-detail-fav', card).click(function (e) {
-                window.spacescout_favorites.clear(parseInt($(this).attr('data-id')));
+                window.spacescout_favorites.clear(parseInt($(this).data('id')));
             });
 
             $(document).on('spaceFavoriteClear', function (e, id) {
-                var container = $('#spot_'+id).closest('.space-detail-container');
+                var $container = $('#spot_'+id).closest('.space-detail-container');
 
-                container.hide({
+                $container.hide({
                     effect: 'fade',
                     duration: 800,
                     complete: function () {
-                        container.remove();
+                        $container.remove();
                     }
                 });
             });
@@ -474,14 +473,15 @@
             }
             
             // Load image carousel
+            var template;
             if (fav.hasOwnProperty('images') && fav.images.length > 0) {
-                var template = Handlebars.compile($('#images_template').html());
+                template = H.compile($('#images_template').html());
                 var data = [];
                 // only load initial image
                 data.push({ id: fav.id, image_id: fav.images[0].id });
                 $('.carousel-inner', card).html(template({ data: data }));
             } else {
-                var template = Handlebars.compile($('#no_images_template').html());
+                template = H.compile($('#no_images_template').html());
                 $('.carousel-inner', card).html(template({ static_url: window.spacescout_static_url }));
             }
             
@@ -489,30 +489,28 @@
                 var url = fav.extended_info.reservation_notes.match(/(http:\/\/[^\s]+)/);
                 
                 if (url) {
-                    var template = Handlebars.compile($('#reservation_cue').html());
+                    template = H.compile($('#reservation_cue').html());
                     $('.space-info-reservation-cue', card).html(template({ url: url[1] })).show();
                 }
             }
         });
 
         $(document).on('favoritesLoaded', function (e, data) {
-            var h, d;
-
             initializeCarousel();
             initMapCarouselButtons();
 
             $('.share_space').on('click', function (e) {
                 e.preventDefault();
-                h = $(e.target).prop('href'),
+                var h = $(e.target).prop('href');
 
-                window.location.href = h
-                    + '?back=' + encodeURIComponent('/favorites'
-                                                    + '?back=' + encodeURIComponent(window.spacescout_referrer)
-                                                    + '#spot_' + h.match(/\d+$/)[0]);
+                window.location.href = h +
+                    '?back=' + encodeURIComponent('/favorites' +
+                                                    '?back=' + encodeURIComponent(window.spacescout_referrer) +
+                                                    '#spot_' + h.match(/\d+$/)[0]);
             });
 
             if (window.location.hash.length > 1) {
-                d = $(window.location.hash).offset().top;
+                var d = $(window.location.hash).offset().top;
 
                 if (d > $(document).height() - $(window).height()) {
                     d = $(document).height() - $(window).height();
@@ -550,5 +548,5 @@
 
     }
 
-})(this);
+})(Handlebars, jQuery);
 

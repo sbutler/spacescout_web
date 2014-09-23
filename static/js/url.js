@@ -17,8 +17,13 @@
 
     =================================================================
 
+    sbutler1@illinois.edu: fix JSHint bugs, use the IFI for jQuery global,
+      add in triggers for encode/decode search terms, don't bother with
+      cap:1 since it is the default.
 */
-(function(){
+
+/* $ = jQuery */
+(function($){
 
     window.spacescout_url = window.spacescout_url || {
 
@@ -35,8 +40,8 @@
             case 'favorites':
                 break;
             case '':
-                if (window.default_location != state.campus
-                    || this.encode_current_search() != state.search) {
+                if (window.default_location != state.campus ||
+                    this.encode_current_search() != state.search) {
                     $('#location_select option').each(function (i) {
                         var location = $(this).val().split(',');
                         if (location[2] == state.campus) {
@@ -73,7 +78,6 @@
 
         push: function (id) {
             var url = [''],
-                path,
                 campus = window.default_location,
                 search = this.encode_current_search();
 
@@ -87,7 +91,7 @@
                 url.push(id);
             }
 
-            path = url.join('/');
+            var path = url.join('/');
 
             // only push fresh references
             if (decodeURIComponent(window.location.pathname) != path) {
@@ -156,11 +160,13 @@
         encode_search_terms: function (opts) {
             var terms = [], a, s;
 
+            $.event.trigger('url_beforeEncodeSearchTerms', [terms, opts] );
+
             if (opts) {
                 if (opts.hasOwnProperty('type')) {
                     a = [];
 
-                    $.each(opts["type"], function () {
+                    $.each(opts.type, function () {
                         a.push(this);
                     });
 
@@ -173,20 +179,20 @@
                     terms.push('reservable');
                 }
 
-                if (opts["capacity"]) {
-                    terms.push('cap:' + opts["capacity"]);
+                if (opts.capacity && opts.capacity != 1) {
+                    terms.push('cap:' + opts.capacity);
                 }
 
-                if (opts["open_at"]) {
-                    terms.push('open:' + opts["open_at"]);
+                if (opts.open_at) {
+                    terms.push('open:' + opts.open_at);
                 }
 
-                if (opts["open_until"]) {
-                    terms.push('close:' + opts["open_until"]);
+                if (opts.open_until) {
+                    terms.push('close:' + opts.open_until);
                 }
 
-                if (opts["building_name"]) {
-                    terms.push('bld:' + opts["building_name"]);
+                if (opts.building_name) {
+                    terms.push('bld:' + opts.building_name);
                 }
 
                 // set resources
@@ -244,12 +250,16 @@
                 }
             }
 
-            return (terms.length) ? terms.join('|') : null;
+            $.event.trigger('url_afterEncodeSearchTerms', [terms, opts] );
+            
+            return (terms.length) ? terms.join(';') : null;
         },
 
         decode_search_terms: function (raw) {
             var opts = {},
-                terms = raw ? raw.split('|') : [];
+                terms = raw ? raw.split(';') : [];
+
+            $.event.trigger('url_beforeDecodeSearchTerms', [terms, opts] );
 
             $.each(terms, function () {
                 var m = this.match(/^([^:]+)(:(.*))?$/),
@@ -260,9 +270,9 @@
                 v = m[3];
                 switch (m[1]) {
                 case 'type':
-                    opts['type'] = [];
+                    opts.type = [];
                     $.each(v.split(','), function () {
-                        opts['type'].push(this);
+                        opts.type.push(this);
                     });
 
                     break;
@@ -270,18 +280,18 @@
                     opts["extended_info:reservable"] = true;
                     break;
                 case 'cap':
-                    opts["capacity"] = v ? v : 1;
+                    opts.capacity = v ? v : 1;
                     break;
                 case 'open':
-                    opts["open_at"] = v;
+                    opts.open_at = v;
                     break;
                 case 'close' :
-                    opts["open_until"] = v;
+                    opts.open_until = v;
                     break;
                 case 'bld' :
-                    opts["building_name"] = [];
+                    opts.building_name = [];
                     $.each(v.split(','), function () {
-                        opts['building_name'].push(this);
+                        opts.building_name.push(this);
                     });
 
                     break;
@@ -324,9 +334,12 @@
 
                     break;
                 default:
+                    $event.trigger('url_decodeSearchTerm', [m[1], v, opts]);
                     break;
                 }
             });
+
+            $.event.trigger('url_afterDecodeSearchTerms', [terms, opts] );
 
             return opts;
         }
@@ -344,7 +357,7 @@
     $(document).on('searchResultsLoaded', function (e, data) {
         var state = window.spacescout_url.parse_path(window.location.pathname);
 
-        if (window.location.pathname == '' || window.location.pathname == '/') {
+        if (window.location.pathname === '' || window.location.pathname == '/') {
             window.spacescout_url.replace();
         }
 
@@ -354,4 +367,4 @@
     });
 
 
-})(this);
+})(jQuery);

@@ -21,6 +21,7 @@
     sbutler1@illinois.edu: cleanup of obvious bugs highighted by JSHint.
     sbutler1@illinois.edu: added events to handle custom filter options;
       removed open_anytime and used the events instead.
+    sbutler1@illinois.edu: merge v2.0 changes.
 */
 
 var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = null;
@@ -40,10 +41,10 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
 
         // load and update favorites
         if ($(window.spacescout_favorites.k.favorites_count_container).length == 1) {
-            window.spacescout_favorites.load();
+            window.spacescout_favorites.update();
 
-            if (window.hasOwnProperty('spacescout_favorites_refresh')
-                && window.spacescout_favorites_refresh) {
+            if (window.hasOwnProperty('spacescout_favorites_refresh') &&
+                window.spacescout_favorites_refresh) {
                 window.clearInterval(window.spacescout_favorites_refresh);
                 window.spacescout_favorites_refresh = null;
             }
@@ -355,9 +356,11 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
         if ($("#hours_list_input").prop("checked")) {
             if ($('#day-from').val() != 'nopref') {
                 var from_query = [];
+                var hour_from = $('#hour-from').val();
+
                 from_query.push($('#day-from').val());
-                if ($('#hour-from').val() != 'nopref') {
-                    var time = $('#hour-from').val().split(':');
+                if (hour_from && hour_from != 'nopref') {
+                    var time = hour_from.split(':');
 
                     time[0] = parseInt(time[0], 10);
                     if ($('#ampm-from').val() == 'PM' && time[0] != 12) {
@@ -375,9 +378,11 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
 
             if ($('#day-from').val() != 'nopref' && $('#day-until').val() != 'nopref') {
                 var until_query = [];
+                var hour_until = $('#hour-until').val();
+
                 until_query.push($('#day-until').val());
-                if ($('#hour-until').val() != 'nopref') {
-                    var time = $('#hour-until').val().split(':');
+                if (hour_until && hour_until != 'nopref') {
+                    var time = hour_until.split(':');
 
                     time[0] = parseInt(time[0], 10);
                     if ($('#ampm-until').val() == 'PM' && time[0] != 12) {
@@ -475,10 +480,10 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
 
         // slide the filter up
         $("#filter_block").slideUp(400, function () {
-            var icon = $('.fa-angle-double-up');
+            var $icon = $('.fa-angle-double-up');
 
-            if (icon.length) {
-                icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
+            if ($icon.length) {
+                $icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
             }
 
             // check to see if the style attribute was added to the container (mobile only)
@@ -539,7 +544,11 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
         window.spacescout_search_options = {};
         window.update_count = true;
 
-        if ($.cookie('spacescout_search_opts')) {
+        var state = window.spacescout_url.parse_path(window.location.pathname);
+        if (state.hasOwnProperty('search')) {
+            window.spacescout_search_options = window.spacescout_url.decode_search_terms(state.search);
+            repopulate_filters(window.spacescout_search_options);
+        } else if ($.cookie('spacescout_search_opts')) {
             window.spacescout_search_options = JSON.parse($.cookie('spacescout_search_opts'));
             repopulate_filters(window.spacescout_search_options);
         }
@@ -571,12 +580,26 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
             mapTypeControl: false,
             mapTypeId: GM.MapTypeId.ROADMAP,
             streetViewControl: false,
-            styles: [{
-                featureType: "poi.place_of_worship",
-                stylers: [
-                  { "visibility": "off" }
-                ]
-            }]
+            styles: [
+                {
+                    featureType: "poi.attraction",
+                    stylers: [
+                        { "visibility": "off" }
+                    ]
+                },
+                {
+                    featureType: "poi.business",
+                    stylers: [
+                        { "visibility": "off" }
+                    ]
+                },
+                {
+                    featureType: "poi.place_of_worship",
+                    stylers: [
+                        { "visibility": "off" }
+                    ]
+                }
+            ]
         };
 
         if (window.spacescout_map) {
@@ -591,79 +614,30 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
             spacescout_map.setOptions({draggable: true});
         });
         
-        // these commented out lines cause LOTS of CPU
-        // add listeners to disable click events for points of interest
-        // http://stackoverflow.com/questions/7950030/can-i-remove-just-the-popup-bubbles-of-pois-in-google-maps-api-v3
-        //GM.event.addListener(spacescout_map, "mouseup",function(event){
-        //    setInterval(function(){$('[src$="/mv/imgs8.png"]').trigger('click'); },1);
-        //});
-        //GM.event.addListener(spacescout_map, "dragstart",function(event){
-        //    setInterval(function(){$('[src="http://maps.gstatic.com/mapfiles/mv/imgs8.png"]').trigger('click'); },1);
-        //});
-        //GM.event.trigger(spacescout_map, 'mouseup'); // prime the cover.
-
         GM.event.addListenerOnce(spacescout_map, 'tilesloaded', function () {
             document.getElementById('center_all').style.display = "inline";
+        });
+
+        GM.event.addListener(spacescout_map, 'click', function() {
+            _fetchData();
         });
 
         // append the centering buttons after map has loaded
         _displayMapCenteringButtons();
     }
 
-/*
-    function display_search_results(data) {
-        $('.loading').show();
-
-        for (i = 0; i < data.length; i++) {
-            if (!spacescout_marker_ids[data[i].id]) {
-                marker = new GM.Marker({
-                    position: new GM.LatLng(data[i].location.latitude, data[i].location.longitude),
-                    title: data[i].name,
-                    icon: '/static/img/pins/pin01.png'
-                });
-
-                //marker.setMap(window.spacescout_map);
-                mc.addMarker(marker);
-                addMarkerListener(marker, data[i]);
-
-                spacescout_marker_ids[data[i].id] = true;
-                window.spacescout_markers.push(marker);
-            }
-        }
-        addClusterListener(mc, data);
-        openAllMarkerInfoWindow(data);
-
-        // you are here marker
-        if (youarehere != null) {
-            my_marker = new GM.Marker({
-                position: new GM.LatLng(youarehere.latitude, youarehere.longitude),
-                title: "You are here",
-                map: spacescout_map,
-                icon: '/static/img/pins/me_pin.png'
-            });
-            //window.spacescout_markers.push(my_marker);
-        }
-
-        // set the # of spaces in the bubble if update_count is true
-        if (window.update_count) {
-            var source = $('#space_count').html();
-            var template = H.compile(source);
-            $('#space_count_container').html(template({count: data.length}));
-        }
-
-        // if this was true, now that we've updated the count don't do it again unless a custom search was run
-        if (window.update_count == true) {
-            window.update_count = false;
-        }
-
-    }
-*/
-
     function _loadData(data) {
         // update the map
-        // display_search_results(data);
         updatePins(data);
+        data_loaded(data.length);
     }
+
+    function data_loaded(count) {
+        $.event.trigger('searchResultsLoaded', {
+            count: count
+        });
+    }
+    window.data_loaded = data_loaded;
 
     function _reloadOnIdle() {
         // load the in-page json first time through
@@ -763,6 +737,12 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
             }
         }
 
+        // implicitly filter on selected campus
+        var $location = $('#location_select option:selected');
+        if ($location.length) {
+            url_args.push(encodeURIComponent("extended_info:campus") + "=" + encodeURIComponent($location.val().split(',')[2]));
+        }
+
         var query = '/search/?' + url_args.join('&');
 
         window.requests.push(
@@ -800,7 +780,18 @@ var spacescout_map = null, spacescout_markers = [], speed = 800, update_count = 
        // build the template
        var source = $('#map_controls').html();
        var template = H.compile(source);
-       $('#map_canvas').append(template({}));
+       var $map_canvas = $('#map_canvas');
+
+       $map_canvas.append(template({}));
+
+       // handle clicking on map centering buttons
+       $('.map-control-container a', $map_canvas).on('click', function (e) {
+           e.preventDefault();
+           if (window.spacescout_map.getZoom() != window.default_zoom) {
+               window.spacescout_map.setZoom(parseInt(window.default_zoom));
+           }
+           window.spacescout_map.setCenter(new GM.LatLng(window.default_latitude, window.default_longitude));
+        });
     }
 
 })(Handlebars, jQuery, google.maps);

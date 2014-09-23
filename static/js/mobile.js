@@ -20,10 +20,11 @@
     sbutler1@illinois.edu: fix obvious JSHint bugs.
     sbutler1@illinois.edu: formatting fixes plus hide non-global
       variables/functions.
+    sbutler1@illinois.edu: merge v2.0 changes.
 */
 
-// $ = jQuery
-(function ($) {
+// HB = Handlebars, GM = google.maps, BH = Bloodhound, $ = jQuery
+(function (HB, GM, BH, $) {
 
     var deviceAgent = navigator.userAgent.toLowerCase();
 
@@ -46,22 +47,71 @@
     var honeycombOrNewer = deviceAgent.match(/android [3-9]/i);
     var froyoOrOlder = android && !gingerbread && !honeycombOrNewer;
 
+    window.spacescout_web_mobile = {};
+
+    window.spacescout_web_mobile.show_main_app = function () {
+        $('#main_space_detail').hide();
+        $('#main_app').show();
+
+		    _setMobileContentHeights();
+
+        if (window.spacescout_map) {
+            GM.event.trigger(window.spacescout_map, "resize");
+        }
+    };
+
+    window.spacescout_web_mobile.show_space_detail = function (id) {
+        $('#main_space_detail').html('');
+        $('#main_space_detail').show();
+        $('#main_app').hide();
+        _loadSpaceDetails(id);
+    };
+
     $(document).ready(function() {
 
-        _setMobileContentHeights();
+        $('.logo').click(function () {
+            window.location.href = '/';
+        });
+
+        // share destination typeahead
+        if ($('#id_recipient').length) {
+            var $node = $('#id_recipient');
+
+            var engine = new BH({
+                datumTokenizer: function (d) {
+                    return BH.tokenizers.whitespace(d.email);
+                },
+                queryTokenizer: BH.tokenizers.whitespace,
+                limit: 15,
+                remote: 'web_api/v1/directory/?q=%QUERY'
+            });
+
+            engine.initialize();
+
+            $node.addClass('tokenfield');
+            $node.tokenfield({
+                delimiter: [',', '\t'],
+                createTokensOnBlur: true,
+                typeahead: [null, {
+                    displayKey: 'email',
+                    minLength: 3,
+                    source: engine.ttAdapter()
+                }]
+            });
+        }
+
+        if (window.spacescout_url) {
+            var state = window.spacescout_url.parse_path(window.location.pathname);
+            if (state.id) {
+                window.spacescout_web_mobile.show_space_detail(state.id);
+            } else {
+                window.spacescout_web_mobile.show_main_app();
+            }
+        }
 
         // check if a map_canvas exists... populate it
         if ($("#map_canvas").length == 1) {
             initialize();
-        }
-
-        // initialize the carousel for mobile standalone space page
-        initializeCarousel();
-        resizeCarouselMapContainer();
-        replaceUrls();
-
-        if ($(".space-detail-body").length == 1) {
-            initMapCarouselButtons();
         }
 
         // scroll to the top of page
@@ -80,9 +130,12 @@
               _scrollTo('info_list');
         });
 
-        // back to spaces button on mobile space details page
-        $('#back_home_button').click(function () {
-            location.href = '/';
+        // back to spaces button on contact, share and suggest pages
+        var $nodes = $('#back_home_button, #back_home_button + div > h2');
+
+        $nodes.css('cursor', 'pointer');
+        $nodes.click(function () {
+            window.location.href = window.spacescout_referrer.length ? window.spacescout_referrer : '/';
         });
 
         // for iphones (ios5) - check if they have the ios detector cookie, if they don't give them one and show the popup
@@ -96,12 +149,11 @@
 
         // show filter panel
         $('#filter_button').click(function () {
-            var block = $("#filter_block");
+            var $block = $("#filter_block");
 
-            // calculate the filter block height
-//          _resizeFilterBlock();
+            if ($block.css('display') == 'none') {
+                get_location_buildings();
 
-            if (block.css('display') == 'none') {
                 // reflect current filter
                 if (window.hasOwnProperty('spacescout_search_options')) {
                     clear_filter();
@@ -109,22 +161,20 @@
                 }
 
                 // slide down the filter block
-                $("#filter_block").slideDown(400, function () {
+                $block.slideDown(400, function () {
                     // hide the main content (map and list) by setting a height on the main container and hiding overflow
-                    var icon = $('.fa-angle-double-down');
+                    var $icon = $('.fa-angle-double-down');
 
-                    if (icon.length) {
-                        icon.switchClass('fa-angle-double-down', 'fa-angle-double-up', 0);
+                    if ($icon.length) {
+                        $icon.switchClass('fa-angle-double-down', 'fa-angle-double-up', 0);
                     }
-
-//                  _setFilterContainer();
                 });
             } else {
-                block.slideUp(400, function () {
-                    var icon = $('.fa-angle-double-up');
+                $block.slideUp(400, function () {
+                    var $icon = $('.fa-angle-double-up');
 
-                    if (icon.length) {
-                        icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
+                    if ($icon.length) {
+                        $icon.switchClass('fa-angle-double-up', 'fa-angle-double-down', 0);
                     }
                 });
             }
@@ -157,26 +207,38 @@
             clear_filter();
         });
 
-        // handle view details click
-        $('.view-details').live('click', function (e) {
-
-            // get the space id
-            var id =  $(this).find('.space-detail-list-item').attr('id');
-
+        $('#login_button').click(function (e) {
             e.preventDefault();
-
-            //clear any unneded pending ajax window.requests
-            for (var i = 0; i < window.requests.length; i++) {
-                window.requests[i].abort();
-            }
-            window.requests.push(
-                $.ajax({
-                    url: '/space/'+id+'/json/',
-                    success: _showSpaceDetails
-                })
-            );
-
+            window.location.href = '/login' +
+                '?next=' + encodeURIComponent(window.location.pathname);
         });
+
+        $('#logout_button').click(function (e) {
+            e.preventDefault();
+            window.location.href = '/logout' +
+                '?next=' + encodeURIComponent(window.location.pathname);
+        });
+
+        $('a span.favorites_count_container').parent().click(function (e) {
+            e.preventDefault();
+            window.location.href = '/favorites' +
+                '?back=' + encodeURIComponent(window.location.pathname);
+        });
+
+        $(document).on('searchResultsLoaded', function (e, data) {
+            // handle view details click
+            $('.view-details').on('click', function (e) {
+                // get the space id
+                var id =  $(this).find('.space-detail-list-item').attr('id');
+
+                e.preventDefault();
+
+                window.spacescout_web_mobile.show_space_detail(id);
+            });
+
+            $('#space_count_container .count').html(data.count);
+        });
+
     });
 
     // Update dimensions on orientation change
@@ -186,14 +248,24 @@
 
         _setMobileContentHeights();
         resizeCarouselMapContainer();
-
-        if ($('#filter_block').is(":visible")) {
-//          _resizeFilterBlock();
-//          _setFilterContainer();
-        }
-
     });
 
+    // fetch and show space 
+    function _loadSpaceDetails(id) {
+        //clear any uneeded pending ajax window.requests
+        $.each(window.requests, function () {
+            this.abort();
+        });
+
+        window.requests.push(
+            $.ajax({
+                url: '/space/'+id+'/json/',
+                success: _showSpaceDetails,
+                error: _showSpaceDetailError
+                
+            })
+        );
+    }
 
     // set a height for main container and hide any overflowing
     function _setFilterContainer() {
@@ -208,10 +280,96 @@
 
     // Show space details
     function _showSpaceDetails(data) {
-        // change url
-        location.href = '/space/' + data.id;
+        var source = $('#space_details').html();
+        var template = HB.compile(source);
+
+        data.has_access_reservation_notes = (data.extended_info.access_notes || data.extended_info.reservation_notes);
+        data.has_labstats = (data.extended_info.labstats_id &&
+            data.extended_info.auto_labstats_total &&
+            data.extended_info.auto_labstats_total != '0');
+        data.has_labstats_available = (data.extended_info.auto_labstats_available > '0');
+        data.has_resources = (data.extended_info.has_computers ||
+            data.extended_info.has_displays ||
+            data.extended_info.has_outlets ||
+            data.extended_info.has_printing ||
+            data.extended_info.has_projector ||
+            data.extended_info.has_scanner ||
+            data.extended_info.has_whiteboards);
+        data.review_count = (data.extended_info.review_count) || 0;
+        data.stars = [];
+        var rating = parseFloat(data.extended_info.rating) || 0.0;
+        for (var star_pos = 1; star_pos <= 5; star_pos++) {
+            if (rating == star_pos - 0.5) {
+                data.stars.push({ "icon": "fa-star-half-o" });
+            } else if (star_pos <= rating) {
+                data.stars.push({ "icon": "fa-star" });
+            } else {
+                data.stars.push({ "icon": "fa-star-o" });
+            }
+        }
+
+        $('#main_space_detail').html(template(data));
+
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+
+        window.spacescout_url.push(data.id);
+
+        initializeCarousel();
+        resizeCarouselMapContainer();
+        replaceReservationNotesUrls();
+        initMapCarouselButtons();
+
+        $('#back_home_button').css('cursor', 'pointer');
+        $('#back_home_button').click(function(e) {
+            var m =  window.location.pathname.match(/\/(\d+)\/?$/);
+
+            window.spacescout_web_mobile.show_main_app();
+            window.spacescout_url.push(null);
+
+            if (m) {
+                window.location.hash = '#space_detail_' + m[1];
+            }
+        });
+
+        // set us up teh favorites
+        window.spacescout_favorites.update_favorites_button(data.id);
+
+        setupRatingsAndReviews(data);
+        loadRatingsAndReviews(data.id, $('.space-reviews-content'), $('.space-actions'));
+
+        // set up share space
+        $('button#share_space').unbind('click');
+        $('button#share_space').click(function (e) {
+            var id =  window.location.pathname.match(/(\d+)\/?$/)[1];
+
+            window.location.href = '/share/' + id +
+                '?back=' + encodeURIComponent(window.location.pathname);
+        });
     }
 
+    function _showSpaceDetailError(data) {
+        var source = $('#space_detail_error').html();
+        var template = HB.compile(source);
+
+        var error;
+        switch (data.status) {
+            case 404:
+                error = 'The requested space could not be found.';
+                break;
+            default:
+                error = 'Unable to load details for this space';
+                break;
+        }
+
+        $('#main_space_detail').html(template({ error_message: error }));
+
+        window.spacescout_url.push(null);
+
+        $('#back_home_button').css('cursor', 'pointer');
+        $('#back_home_button').click(function(e) {
+            window.spacescout_web_mobile.show_main_app();
+        });
+    }
 
     // ScrollTo a spot on the UI
     function _scrollTo(id) {
@@ -288,4 +446,4 @@
         }, false);
     }
 
-})(jQuery);
+})(Handlebars, google.maps, Bloodhound, jQuery);
