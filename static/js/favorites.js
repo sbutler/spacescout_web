@@ -142,10 +142,14 @@
 
                 blank = Handlebars.compile($('#blank_card').html())({ back: window.spacescout_referrer });
                 campus_select = $('#location_select');
+                var selected_campus = $('option:selected', campus_select).val();
+                if (selected_campus)
+                    selected_campus = selected_campus.split(',')[2];
 
-                if (campuses && Object.keys(campuses).length > 0
+
+                if (campus_select.length && campuses && Object.keys(campuses).length > 0
                     && (Object.keys(campuses).length > 1
-                        || !campuses.hasOwnProperty($('option:selected', campus_select).val().split(',')[2]))) {
+                        || !campuses.hasOwnProperty(selected_campus))) {
                     template = Handlebars.compile($('#campus_label').html());
 
                     opts = $('option', campus_select);
