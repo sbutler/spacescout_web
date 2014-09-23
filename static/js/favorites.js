@@ -144,10 +144,12 @@
 
                 var blank = H.compile($('#blank_card').html())({ back: window.spacescout_referrer });
                 var $campus_select = $('#location_select');
+                var selected_campus = $('option:selected', $campus_select).val();
+                if (selected_campus)
+                    selected_campus = selected_campus.split(',')[2];
 
-                if (campuses && Object.keys(campuses).length > 0 &&
-                    (Object.keys(campuses).length > 1 ||
-                     !campuses.hasOwnProperty($('option:selected', $campus_select).val().split(',')[2]))) {
+                if ($campus_select.length && campuses && Object.keys(campuses).length > 0 &&
+                    (Object.keys(campuses).length > 1 || !campuses.hasOwnProperty(selected_campus))) {
                     var template = H.compile($('#campus_label').html());
 
                     var $opts = $('option', $campus_select);
