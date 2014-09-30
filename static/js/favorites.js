@@ -488,11 +488,11 @@
             }
             
             if (fav.has_reservation_notes) {
-                var url = fav.extended_info.reservation_notes.match(/(http:\/\/[^\s]+)/);
+                var url = fav.extended_info.reservation_notes.match(/(["']?)(https?:\/\/[^\s]+)\1/);
                 
                 if (url) {
                     template = H.compile($('#reservation_cue').html());
-                    $('.space-info-reservation-cue', card).html(template({ url: url[1] })).show();
+                    $('.space-info-reservation-cue', card).html(template({ url: url[2] })).show();
                 }
             }
         });

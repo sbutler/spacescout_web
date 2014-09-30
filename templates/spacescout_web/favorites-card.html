@@ -60,8 +60,8 @@
                             <li class="clearfix">
                                 <div class="space-info-label pull-left">Notes</div>
                                 <div class="space-info-detail pull-left">
-                                    {{#if extended_info.access_notes }}<p>{{extended_info.access_notes}}</p>{{/if}}
-                                    {{#if extended_info.reservation_notes }}<p class="ei_reservation_notes">{{extended_info.reservation_notes }}</p>{{/if}}
+                                    {{#if extended_info.access_notes }}<p>{{{ extended_info.access_notes }}}</p>{{/if}}
+                                    {{#if extended_info.reservation_notes }}<p class="ei_reservation_notes">{{{ extended_info.reservation_notes }}}</p>{{/if}}
                                 </div>
                             </li>
                             {{/if}}
@@ -85,11 +85,11 @@
 
                             <li class="clearfix">
                             	<div class="space-info-label pull-left">Hours</div>
-								<div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
+                                <div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
                             </li>
 
                             <li class="clearfix"><div class="space-info-label pull-left">Location</div>
-                              <div class="space-info-detail pull-left">{{extended_info.location_description}}</div>
+                                <div class="space-info-detail pull-left">{{extended_info.location_description}}</div>
                             </li>
 
                             {{#if has_resources }}
