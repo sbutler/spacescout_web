@@ -19,7 +19,7 @@ from django.http import HttpResponseRedirect, Http404
 from spacescout_web.forms.share import ShareForm
 from django.conf import settings
 from django.utils.http import urlquote
-from spacescout_web.spot import Spot, SpotException
+from spacescout_web.spot import SpotShare, Spot, SpotException
 from spacescout_web.views.contact import validate_back_link
 import oauth2
 import socket
@@ -50,31 +50,16 @@ def share(request, spot_id=None):
             message = form.cleaned_data['message']
             bot_test = form.cleaned_data['email_confirmation']
 
-            url = "{0}/api/v1/spot/{1}/share".format(settings.SS_WEB_SERVER_HOST, spot_id)
-
-            body = json.dumps({
-                'to': recipient,
-                'from': sender,
-                'comment': message,
-                'subject': subject
-            })
-
-            headers = {
-                "XOAUTH_USER": "%s" % request.user.username,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-
-            consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
-            client = oauth2.Client(consumer)
-
-            resp, content = client.request(url,
-                                           method='PUT',
-                                           body=body,
-                                           headers=headers)
-
-            if not (resp.status == 200 or resp.status == 201):
-                logger.error('Share service failure %s: %s' % (resp.status, url))
+            share = SpotShare(spot_id, request=request)
+            try:
+                share.put(
+                    to_email=recipient,
+                    from_email=sender,
+                    comment=message,
+                    subject=subject,
+                )
+            except SpotException as ex:
+                logger.error('Share service failure %s: spot_id=%s' % (ex.status_code, spot_id))
                 return HttpResponseRedirect('/share/sorry/')
 
             return HttpResponseRedirect('/share/thankyou/?back=' + urlquote(back))
@@ -117,7 +102,7 @@ def share(request, spot_id=None):
             })
 
     try:
-        spot = Spot(spot_id).get()
+        spot = Spot(spot_id, request=request).get()
         share_text = [spot["name"], spot["type"]]
         if 'extended_info' in spot and 'location_description' in spot['extended_info']:
             share_text.append(spot['extended_info']['location_description'])
