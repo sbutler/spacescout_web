@@ -22,20 +22,16 @@ import simplejson as json
 
 def SpotView(request, spot_id, return_json=False):
     try:
-        spot = Spot(spot_id).get()
+        spot = Spot(spot_id, request=request).get()
     except SpotException as e:
-        if e.resp.status == 404:
-            url = request.get_host()
-            url = url + "/contact"
+        if e.status_code == 404:
             raise Http404
-        elif e.resp.status != 200:
-            response = HttpResponse("Error loading spot")
-            response.status_code = e.resp.status_code
-            return response
+        elif e.status_code != 200:
+            return HttpResponse("Error loading spot", status=e.status_code)
 
     content = json.dumps(spot)
 
     if return_json:
-        return HttpResponse(content, mimetype='application/json')
+        return HttpResponse(content, content_type='application/json')
     else:
         return render_to_response('spacescout_web/space.html', spot, context_instance=RequestContext(request))
