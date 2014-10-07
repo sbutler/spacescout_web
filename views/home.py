@@ -70,7 +70,9 @@ def HomeView(request, template=None):
 
     buildings = json.loads(get_building_json(request=request))
 
-    favorites_json = SpotFavorite(None, request=request).get_json()
+    favorites_json = '[]'
+    if hasattr(request, 'user') and request.user.is_authenticated():
+        favorites_json = SpotFavorite(None, request=request).get_json()
 
     # This could probably be a template tag, but didn't seem worth it for one-time use
     #TODO: hey, actually it's probably going to be a Handlebars helper and template
