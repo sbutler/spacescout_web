@@ -193,6 +193,35 @@ class SpotImage(object):
         }, image
 
 
+class SpotPerson(object):
+    """ Handle RPC for person data from the backend server. """
+    def __init__(self, request=None):
+        self.request = request
+
+    def get_json(self):
+        """ GET the person information. """
+        url = "/api/v1/user/me"
+
+        resp, content = _server_request(url, request=self.request, headers={
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        })
+
+        if resp.status != 200:
+            raise SpotException(response=resp)
+
+        return content
+
+    def get(self):
+        """ GET the person information. """
+        data = json.loads(self.get_json())
+
+        if not ('email' in data and data['email']):
+            data['email'] = getattr(settings, 'SS_MAIL_DOMAIN', 'uw.edu')
+
+        return data
+
+
 class SpotReview(object):
     """ Handle RPC for review data from the backend server. """
     def __init__(self, spot_id, request=None):

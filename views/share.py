@@ -19,11 +19,9 @@ from django.http import HttpResponseRedirect, Http404
 from spacescout_web.forms.share import ShareForm
 from django.conf import settings
 from django.utils.http import urlquote
-from spacescout_web.spot import SpotShare, Spot, SpotException
+from spacescout_web.spot import SpotShare, SpotPerson, Spot, SpotException
 from spacescout_web.views.contact import validate_back_link
-import oauth2
 import socket
-import simplejson as json
 import logging
 
 
@@ -72,25 +70,12 @@ def share(request, spot_id=None):
             back = '/'
 
         if request.user and request.user.is_authenticated():
-            consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
-            client = oauth2.Client(consumer)
-            url = "{0}/api/v1/user/me".format(settings.SS_WEB_SERVER_HOST)
-
-            headers = {
-                "XOAUTH_USER": "%s" % request.user.username,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-                }
-
-            resp, content = client.request(url,
-                                           method='GET',
-                                           headers=headers)
-
-            sender = "%s@%s" % (request.user.username, getattr(settings, 'SS_MAIL_DOMAIN', 'uw.edu'))
-            if resp.status == 200:
-                me = content = json.loads(content)
-                if 'email' in me and len(me['email']):
-                    sender = me['email']
+            try:
+                me = SpotPerson(request=request).get()
+            except SpotException as ex:
+                sender = '{0}@{1}'.format(request.user.username, getattr(settings, 'SS_MAIL_DOMAIN', 'uw.edu'))
+            else:
+                sender = me['email']
         else:
             sender = ''
 
