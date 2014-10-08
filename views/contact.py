@@ -111,7 +111,7 @@ def _contact_variables(request, spot_id):
 
     if spot_id is not None:
         try:
-            spot = Spot(spot_id).get()
+            spot = Spot(spot_id, request=request).get()
         except SpotException as ex:
             logger.error('Contact exception : %s' % (ex))
             raise Http404
