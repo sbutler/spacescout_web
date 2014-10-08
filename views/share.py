@@ -98,7 +98,13 @@ def share(request, spot_id=None):
                     'back': back,
                 }, context_instance=RequestContext(request))
 
-    share_url = 'http://%s/space/%s/%s' % (getattr(settings, 'SS_APP_SERVER', socket.gethostname()),
+    if hasattr(settings, 'SS_SHARE_URL'):
+        share_url = settings.SS_SHARE_URL.format(
+            spot_id=spot_id,
+            spot_name=urlquote(spot['name']),
+        )
+    else:
+        share_url = 'http://%s/space/%s/%s' % (getattr(settings, 'SS_APP_SERVER', socket.gethostname()),
                                            spot_id, urlquote(spot["name"]))
 
     return render_to_response('spacescout_web/share-form.html', {
