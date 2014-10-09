@@ -75,7 +75,7 @@ def share(request, spot_id=None):
         form = ShareForm(initial={
                 'spot_id':spot_id,
                 'back': back,
-                'subject': 'Check out this space I found on SpaceScout',
+                'subject': 'Check out this space I found on IlliniSpaces',
             })
 
     try:
