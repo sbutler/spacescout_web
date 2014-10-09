@@ -42,7 +42,6 @@ def share(request, spot_id=None):
         if form.is_valid():
             spot_id = form.cleaned_data['spot_id']
             back = form.cleaned_data['back']
-            sender = form.cleaned_data['sender']
             recipient = form.cleaned_data['recipient']
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
@@ -50,6 +49,10 @@ def share(request, spot_id=None):
 
             share = SpotShare(spot_id, request=request)
             try:
+                user_data = SpotPerson(request=request).get()
+
+                sender = user_data['email']
+
                 share.put(
                     to_email=recipient,
                     from_email=sender,
@@ -69,20 +72,9 @@ def share(request, spot_id=None):
         except:
             back = '/'
 
-        if request.user and request.user.is_authenticated():
-            try:
-                me = SpotPerson(request=request).get()
-            except SpotException as ex:
-                sender = '{0}@{1}'.format(request.user.username, getattr(settings, 'SS_MAIL_DOMAIN', 'uw.edu'))
-            else:
-                sender = me['email']
-        else:
-            sender = ''
-
         form = ShareForm(initial={
                 'spot_id':spot_id,
                 'back': back,
-                'sender': sender,
                 'subject': 'Check out this space I found on SpaceScout',
             })
 

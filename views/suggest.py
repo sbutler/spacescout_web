@@ -18,7 +18,9 @@ from django.http import HttpResponseRedirect
 from spacescout_web.forms.suggest import SuggestForm
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.utils.http import urlquote
+from spacescout_web.spot import SpotPerson
 from spacescout_web.views.contact import validate_back_link
 import logging
 
@@ -26,6 +28,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@login_required(login_url='/login')
 def suggest(request, spot_id=None):
     if request.method == 'POST':
         form = SuggestForm(request.POST)
@@ -39,8 +42,6 @@ def suggest(request, spot_id=None):
         if form.is_valid():
             back = form.cleaned_data['back']
             name = form.cleaned_data['name']
-            netid = form.cleaned_data['netid']
-            sender = form.cleaned_data['sender']
             building = form.cleaned_data['building']
             floor = form.cleaned_data['floor']
             room_number = form.cleaned_data['room_number']
@@ -49,23 +50,36 @@ def suggest(request, spot_id=None):
             bot_test = form.cleaned_data['email_confirmation']
 
             browser = request.META.get('HTTP_USER_AGENT', 'Unknown')
-
             subject = "[Suggestion] From %s" % (name)
-            email_message = "A SpaceScout user has suggested the following space.\n\
-                           \nSuggested Space:\n\
-                           \nFrom: %s <%s>\n\
-                           \nNetID: %s\n\
-                           \nBuilding: %s\n\
-                           \nFloor: %s\n\
-                           \nRoom number: %s\n\
-                           \nDescription: %s\n\
-                           \nJustification: %s\n\
-                           \nBrowser Type = %s" % (name, sender, netid, building,
-                                                   floor, room_number, description,
-                                                   justification, browser)
 
             if bot_test == '':
                 try:
+                    user_data = SpotPerson(request=request).get()
+
+                    netid = user_data['user']
+                    sender = user_data['email']
+
+                    email_message = "A SpaceScout user has suggested the following space.\n\
+                        \nSuggested Space:\n\
+                        \nFrom: {name} <{sender}>\n\
+                        \nNetID: {netid}\n\
+                        \nBuilding: {building}\n\
+                        \nFloor: {floor}\n\
+                        \nRoom number: {room_number}\n\
+                        \nDescription: {description}\n\
+                        \nJustification: {justification}\n\
+                        \nBrowser Type: {browser}".format(
+                        name=name,
+                        sender=sender,
+                        netid=netid,
+                        building=building,
+                        floor=floor,
+                        room_number=room_number,
+                        description=description,
+                        justification=justification,
+                        browser=browser,
+                    )
+
                     if not hasattr(settings, 'FEEDBACK_EMAIL_RECIPIENT'):
                         logger.error('Missing configuration: Set FEEDBACK_EMAIL_RECIPIENT for your site')
                     send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)

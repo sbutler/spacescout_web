@@ -19,8 +19,6 @@ from spacescout_web.forms.base import BaseForm
 class SuggestForm(BaseForm):
         back = forms.CharField(widget=forms.HiddenInput())
         name = forms.CharField(max_length=25, label="Your Name", required=True, error_messages={'required':'Required field'})
-        netid = forms.CharField(max_length=25, label="Your NetID", required=True, error_messages={'required':'Required field'})
-        sender = forms.EmailField(max_length=40, label="Your Email", required=True, error_messages={'required':'Required field'})
         building = forms.CharField(widget=forms.TextInput(), label="Building Name", required=True, error_messages={'required':'Required field'})
         floor = forms.CharField(widget=forms.TextInput(), label="Floor Number", required=True, error_messages={'required':'Required field'})
         room_number = forms.CharField(widget=forms.TextInput(), label="Room Number (optional)", required=False)
