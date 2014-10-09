@@ -3,24 +3,16 @@
 @uiuc_blue_light: #e4f1fa;
 @uiuc_green: #48b128;
 
-// retina.less
-// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
-.at2x(@path, @w: auto, @h: auto) {
-  background-image: e(%("url(%s)", @path));
-  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
-
-  @media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
-    background-image: e(%("url(%s)", @at2x_path));
-    background-size: @w @h;
-  }
-}
-
 #nav {
 
-    .logo-container {
+    .spacescout-header {
 
-        .logo {
-            .at2x('/static/img/uiuc_logo.png', 226px, 56px);
+        .logo-container {
+
+            .logo {
+                background-image: url('../img/uiuc_logo.png');
+            }
+
         }
 
     }
@@ -86,6 +78,46 @@
                     }
                 }
 
+                .space-ratings-and-reviews {
+
+                    .write-a-review {
+                        color: @uiuc_blue;
+                    }
+
+                    .space-reviews-content {
+
+                        .space-reviews-review {
+
+                            .space-review-header {
+
+                                span {
+
+                                    i {
+                                        color: @uiuc_blue_dark;
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    .space-review-compose {
+
+                        #space-review-submit {
+                            background-color: @uiuc_blue_dark;
+                        }
+
+                        #space-review-cancel {
+                            color: @uiuc_blue;
+                        }
+
+                    }
+
+                }
+
                 .space-detail-report {
 
                     a, a:visited {
@@ -137,3 +169,48 @@
 
     }
 }
+
+@media screen and (min-width: 1024px) {
+
+    #map_canvas {
+
+        .space-detail-container {
+
+            .space-detail {
+
+                .space-detail-inner {
+
+                    .space-detail-header {
+
+                        .space-actions {
+
+                            .space-stars {
+
+                                i {
+                                    color: @uiuc_blue_dark;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+.favorites-header {
+    background-color: @uiuc_blue;
+
+    span {
+        border-bottom-color: @uiuc_blue;
+    }
+}
+

@@ -3,29 +3,60 @@
 @uiuc_blue_light: #e4f1fa;
 @uiuc_green: #48b128;
 
-// retina.less
-// A helper mixin for applying high-resolution background images (http://www.retinajs.com)
-.at2x(@path, @w: auto, @h: auto) {
-  background-image: e(%("url(%s)", @path));
-  @at2x_path: ~`"@{path}".split('.').slice(0, "@{path}".split('.').length - 1).join(".") + "@2x" + "." + "@{path}".split('.')["@{path}".split('.').length - 1]`;
-
-  @media only screen and (-webkit-min-device-pixel-ratio : 2), only screen and (min--moz-device-pixel-ratio: 2) {
-    background-image: e(%("url(%s)", @at2x_path));
-    background-size: @w @h;
-  }
-}
+@uiuc_heart: #D46A6A;
 
 body {
     background-color: white;
 }
 
+.primary-button {
+	background: rgba(0, 98, 174 ,1);
+	background: -moz-linear-gradient(top, rgba(0, 98, 174, 1) 0%, rgba(0, 60, 106, 1) 100%);
+	background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 98, 174, 1)), color-stop(100%, rgba(0, 60, 106, 1)));
+			
+	background: -webkit-linear-gradient(top, rgba(0, 98, 174, 1) 0%, rgba(0, 60, 106, 1) 100%);
+	background: -o-linear-gradient(top, rgba(0, 98, 174, 1) 0%, rgba(0, 60, 106, 1) 100%);
+	background: -ms-linear-gradient(top, rgba(0, 98, 174, 1) 0%, rgba(0, 60, 106, 1) 100%);
+			
+	background: linear-gradient(to bottom, rgba(0, 98, 174, 1) 0%, rgba(0, 60, 106, 1) 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#0062ae', endColorstr='#003C6A', GradientType=0 );
+
+	&:hover {
+			background: rgba(0, 139, 245, 1);
+			background: -moz-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 139, 245, 1)), color-stop(100%, rgba(0, 98, 174, 1)));
+			background: -webkit-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -o-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -ms-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: linear-gradient(to bottom, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008BF5', endColorstr='#0062AE', GradientType=0 );
+	}
+
+	&:focus {
+			background: rgba(0, 139, 245, 1);
+			background: -moz-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 139, 245, 1)), color-stop(100%, rgba(0, 98, 174, 1)));
+			background: -webkit-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -o-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: -ms-linear-gradient(top, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			background: linear-gradient(to bottom, rgba(0, 139, 245, 1) 0%, rgba(0, 98, 174, 1) 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008BF5', endColorstr='#0062AE', GradientType=0 );
+	}
+
+}
+
 #nav {
 
-    .logo-container {
-        
-        .logo {
-            .at2x('/static/img/uiuc_logo.png', 189px, 30px);
+    .spacescout-header {
+
+        .logo-container {
+            
+            .logo {
+                background-image: url('../img/uiuc_logo.png');
+            }
+
         }
+
     }
 
     .user_context {
@@ -192,6 +223,57 @@ body {
     .space-detail-name {
         color: @uiuc_blue_dark;
     }
+
+    .space-actions {
+
+        .space-stars {
+
+            i {
+                color: @uiuc_blue_dark;
+            }
+
+        }
+
+    }
+}
+
+div.actions {
+    
+    a {
+        color: @uiuc_blue_dark;
+    }
+}
+
+.space-detail-fav {
+    color: @uiuc_heart;
+}
+
+.space-detail-fav-unset {
+
+    i {
+        color: @uiuc_blue_dark;
+    }
+
+}
+
+.space-detail-fav-set {
+
+    i {
+        color: @uiuc_heart;
+    }
+
+}
+
+.space-detail-header, #space_details_header {
+    
+    .space-actions {
+
+        button {
+            color: @uiuc_blue;
+        }
+
+    }
+
 }
 
 #space_details_page {
@@ -233,6 +315,42 @@ body {
                     }
                 }
 
+                .space-ratings-and-reviews {
+
+                    h3 {
+                        color: @uiuc_blue_dark;
+                    }
+
+                    .space-reviews-content {
+
+                        .space-reviews-none {
+
+                            button {
+                                color: @uiuc_blue;
+                            }
+
+                        }
+
+                    }
+
+                    .space-review-compose {
+
+                        #space-review-cancel {
+                            color: @uiuc_blue;
+                        }
+
+                    }
+
+                }
+
+                .space-detail-share {
+                    
+                    a {
+                        color: @uiuc_blue;
+                    }
+
+                }
+
                 .space-detail-report {
                     
                     a, a:visited {
@@ -244,7 +362,83 @@ body {
     }
 }
 
+.space-detail {
+
+    .space-ratings-and-reviews {
+
+        .reviews-section-header {
+
+            h3 {
+                color: @uiuc_blue_dark;
+            }
+
+            .write-a-review {
+                color: @uiuc_blue;
+            }
+
+        }
+
+        .space-review-rating {
+
+            ol {
+
+                li {
+
+                    label {
+
+                        i {
+                            color: @uiuc_blue_dark;
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        .space-reviews-review {
+
+            .space-review-header {
+
+                span {
+
+                    i {
+                        color: @uiuc_blue_dark;
+                    }
+
+                }
+
+            }
+
+        }
+
+        #review_guidelines {
+            color: @uiuc_blue_dark;
+        }
+
+    }
+
+}
+
 #footer {
     background-image: url('/static/img/IMark_26.gif');
     background-position: left center;
+}
+
+.contact-header, .suggest-header, .share-header {
+    color: @uiuc_blue_dark;
+}
+
+.page-title {
+    color: @uiuc_blue_dark;
+}
+
+.favorites-header {
+    background-color: @uiuc_blue;
+
+    span {
+        border-bottom-color: @uiuc_blue;
+    }
 }

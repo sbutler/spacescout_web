@@ -4,6 +4,7 @@
 {% load compress %}
 {% compress css %}
 <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites.less" media="screen, handheld" />
+<link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites-uiuc.less" media="screen, handheld" />
 {% endcompress %}
 {% endblock %}
 
@@ -34,7 +35,7 @@
         <div class="logo-container">
 
             <div class="logo">
-              <a href="{{ back }}" title="Spacesout home page"><div class="logo"><h1 class="visuallyhidden">SPACESCOUT&trade;</h1></div></a>
+              <a href="{{ back }}" title="IlliniSpaces home page"><div class="logo"><h1 class="visuallyhidden">IlliniSpaces&trade;</h1></div></a>
             </div>
             <div class="location_container">
                 {% ifnotequal locations|length 1 %}

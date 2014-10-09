@@ -4,6 +4,7 @@
 {% load compress %}
 {% compress css %}
 <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites.less" media="screen, handheld" />
+<link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites-uiuc.less" media="screen, handheld" />
 {% endcompress %}
 {% endblock %}
 
@@ -28,7 +29,7 @@
         <div class="spacescout-header clearfix">
           <div class="logo-container">
             <div class="logo">
-                <h1 id="app_header" class="visuallyhidden">SPACESCOUT&trade;</h1>
+                <h1 id="app_header" class="visuallyhidden">IlliniSpaces&trade;</h1>
             </div>
             <div class="location_container">
                 {% ifnotequal locations|length 1 %}
