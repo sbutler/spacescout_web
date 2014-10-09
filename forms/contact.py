@@ -18,7 +18,6 @@ from spacescout_web.forms.base import BaseForm
 
 class ContactForm(BaseForm):
         name = forms.CharField(max_length=25, label="Your Name", error_messages={'required':'Required field'})
-        sender = forms.EmailField(max_length=40, label="Your Email (Optional)", required=False)
         #feedback_choice = forms.ChoiceField((
             #('', 'Please Select One'),
             #('feedback', 'Leave Feedback'),

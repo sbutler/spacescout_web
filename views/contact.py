@@ -16,9 +16,10 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, Http404
 from spacescout_web.forms.contact import ContactForm
-from spacescout_web.spot import Spot, SpotException
+from spacescout_web.spot import Spot, SpotPerson, SpotException
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 import simplejson as json
 import urllib2
 import re
@@ -28,6 +29,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@login_required(login_url='/login')
 def contact(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
     if spot_id is None:
@@ -44,7 +46,6 @@ def contact(request, spot_id=None):
         form = ContactForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
-            sender = form.cleaned_data['sender']
             message = form.cleaned_data['message']
             #feedback_choice = form.cleaned_data['feedback_choice']
             feedback_choice = 'problem'
@@ -53,11 +54,29 @@ def contact(request, spot_id=None):
             browser = request.META.get('HTTP_USER_AGENT', 'Unknown')
 
             subject = "[%s] Request from %s" % (feedback_choice, name)
-            email_message = "SpaceScout Web - %s \n\n %s \n\n %s %s \n %s - ID = %s \
-                \n Browser Type = %s" % (feedback_choice, message, name, sender, spot_name, displayed_spot_id, browser)
-
             if bot_test == '':
                 try:
+                    user_data = SpotPerson(request=request).get()
+
+                    netid = user_data['user']
+                    sender = user_data['email']
+
+                    email_message = "SpaceScout Web - {feedback_choice}\n\
+                        \nFrom: {name} <{sender}>\n\
+                        \nNetID: {netid}\n\
+                        \n{spot_name} - ID: {displayed_spot_id}\n\
+                        \nFeedback: {message}\n\
+                        \nBrowser Type: {browser}".format(
+                        feedback_choice=feedback_choice,
+                        name=name,
+                        sender=sender,
+                        netid=netid,
+                        spot_name=spot_name,
+                        displayed_spot_id=displayed_spot_id,
+                        message=message,
+                        browser=browser,
+                    )
+
                     send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)
                 except Exception as e:
                     logger.error('Contact failure: %s' % (e))
