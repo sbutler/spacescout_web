@@ -334,7 +334,7 @@
 
                     break;
                 default:
-                    $event.trigger('url_decodeSearchTerm', [m[1], v, opts]);
+                    $.event.trigger('url_decodeSearchTerm', [m[1], v, opts]);
                     break;
                 }
             });

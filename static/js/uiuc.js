@@ -33,12 +33,20 @@
             $('#open_anytime').prop( 'checked', true );
         else if (!filter_opts.only_at && !filter_opts.open_until && !filter_opts.open_anytime)
             $('#open_now').prop( 'checked', true );
+
+        $('#food_allowed').val( filter_opts.food_allowed ? filter_opts.food_allowed : '' );
     } );
 
     /* Save the filter box options into the search options. */
     $(document).on( 'search_afterRunCustomOptions', function (event, filter_opts, results) {
         if ($('#open_anytime').prop( 'checked' )) {
             filter_opts.open_anytime = 1;
+            results.set_cookie = true;
+        }
+
+        var $food_allowed = $('#food_allowed');
+        if ($food_allowed.val()) {
+            filter_opts.food_allowed = $food_allowed.val();
             results.set_cookie = true;
         }
     } );
@@ -59,6 +67,22 @@
     $(document).on( 'url_afterEncodeSearchTerms', function (event, terms, opts) {
         if (opts.open_anytime) {
             terms.push('open:any');
+        }
+
+        if (opts.food_allowed) {
+            var fa_v = opts.food_allowed;
+            if (fa_v == 'covered_drink') {
+                fa_v = 'cd';
+            }
+            terms.push('fa:' + fa_v);
+        }
+    } );
+    $(document).on( 'url_decodeSearchTerm', function (event, term, value, opts) {
+        if (term == 'fa') {
+            opts.food_allowed = value;
+            if (opts.food_allowed == 'cd') {
+                opts.food_allowed = 'covered_drink';
+            }
         }
     } );
     $(document).on( 'url_afterDecodeSearchTerms', function (event, terms, opts) {
