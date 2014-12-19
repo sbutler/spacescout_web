@@ -34,7 +34,8 @@
         else if (!filter_opts.only_at && !filter_opts.open_until && !filter_opts.open_anytime)
             $('#open_now').prop( 'checked', true );
 
-        $('#food_allowed').val( filter_opts.food_allowed ? filter_opts.food_allowed : '' );
+        var fa_v = filter_opts['extended_info:food_allowed'];
+        $('#food_allowed').val( fa_v ? fa_v : '' );
     } );
 
     /* Save the filter box options into the search options. */
@@ -46,7 +47,7 @@
 
         var $food_allowed = $('#food_allowed');
         if ($food_allowed.val()) {
-            filter_opts.food_allowed = $food_allowed.val();
+            filter_opts['extended_info:food_allowed'] = $food_allowed.val();
             results.set_cookie = true;
         }
     } );
@@ -69,8 +70,8 @@
             terms.push('open:any');
         }
 
-        if (opts.food_allowed) {
-            var fa_v = opts.food_allowed;
+        if (opts['extended_info:food_allowed']) {
+            var fa_v = opts['extended_info:food_allowed'];
             if (fa_v == 'covered_drink') {
                 fa_v = 'cd';
             }
@@ -79,10 +80,7 @@
     } );
     $(document).on( 'url_decodeSearchTerm', function (event, term, value, opts) {
         if (term == 'fa') {
-            opts.food_allowed = value;
-            if (opts.food_allowed == 'cd') {
-                opts.food_allowed = 'covered_drink';
-            }
+            opts['extended_info:food_allowed'] = (value == 'cd' ? 'covered_drink' : value);
         }
     } );
     $(document).on( 'url_afterDecodeSearchTerms', function (event, terms, opts) {
