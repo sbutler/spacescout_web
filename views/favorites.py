@@ -23,7 +23,7 @@ from spacescout_web.views.contact import validate_back_link
 from spacescout_web.spot import SpotFavorite, SpotException
 
 # User's favorite spaces
-@login_required(login_url='/login')
+@login_required
 @mobile_template('spacescout_web/{mobile/}favorites.html')
 def FavoritesView(request, template=None):
     try:
@@ -41,7 +41,7 @@ def FavoritesView(request, template=None):
 
 
 # Shim to fetch server-side user favorites
-@login_required(login_url='/login')
+@login_required
 @never_cache
 def API(request, spot_id=None):
     favorite = SpotFavorite(spot_id, request=request)

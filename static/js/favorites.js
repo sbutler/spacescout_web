@@ -222,7 +222,7 @@
                 $fav_button.click(function (e) {
                     if (!authenticated_user) {
                         $.cookie('space_set_favorite', JSON.stringify({ id: id }));
-                        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+                        window.location.href = $('#login_button').attr('href') + '?next=' + encodeURIComponent(window.location.pathname);
                     }
 
                     window.spacescout_favorites.toggle(id);

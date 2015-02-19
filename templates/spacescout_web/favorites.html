@@ -58,9 +58,9 @@
                   <a href="javascript:void(0);">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
                   {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
                   <span>|</span>
-                  <a href="/logout?next={{back}}">{% trans 'logout' %}</a>
+                  <a id='logout_button' href="/shib/logout?next={{back}}">{% trans 'logout' %}</a>
                 {% else %}
-                  {% trans 'salutation' %}&nbsp;<a href="/login?next={% firstof request.path '/' %}">{% trans 'login' %}</a>
+                  {% trans 'salutation' %}&nbsp;<a id='login_button' href="/shib/login?next={% firstof request.path '/' %}">{% trans 'login' %}</a>
                 {% endif %}
             </div>
             <!-- -->

@@ -209,13 +209,13 @@
 
         $('#login_button').click(function (e) {
             e.preventDefault();
-            window.location.href = '/login' +
+            window.location.href = this.href +
                 '?next=' + encodeURIComponent(window.location.pathname);
         });
 
         $('#logout_button').click(function (e) {
             e.preventDefault();
-            window.location.href = '/logout' +
+            window.location.href = this.href +
                 '?next=' + encodeURIComponent(window.location.pathname);
         });
 

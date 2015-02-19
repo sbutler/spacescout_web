@@ -85,7 +85,7 @@ function setupRatingsAndReviews(data) {
         // defer until authenticated
         if (window.spacescout_authenticated_user.length == 0) {
             $.cookie('space_review', JSON.stringify({ id: id, review: review }));
-            window.location.href = '/login?next=' + window.location.pathname;
+            window.location.href = $('#login_button').attr('href') + '?next=' + encodeURIComponent(window.location.pathname);
         }
 
         postRatingAndReview(id, review);

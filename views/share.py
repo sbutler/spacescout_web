@@ -28,7 +28,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required(login_url='/login')
+@login_required
 def share(request, spot_id=None):
     if request.method == 'POST':
         form = ShareForm(request.POST)
