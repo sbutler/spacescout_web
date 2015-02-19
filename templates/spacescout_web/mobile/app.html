@@ -81,19 +81,19 @@
                 </span>
                 {% endifnotequal %}
             </div>
+            <div class="user_context">
+                {% if user.is_authenticated %}
+                  <span class="salutation">{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
+                  <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
+                  <span>|</span>
+                  {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
+                  <a id="logout_button" href="/logout">{% trans 'logout' %}</a>
+                {% else %}
+                  {% trans 'salutation' %}&nbsp;<a id="login_button" href="/login">{% trans 'login' %}</a>
+                {% endif %}
+            </div>
         </div>
       </div>
-        <div class="user_context">
-            {% if user.is_authenticated %}
-              <span class="salutation">{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
-              <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
-              <span>|</span>
-              {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
-              <a id="logout_button" href="/logout">{% trans 'logout' %}</a>
-            {% else %}
-              {% trans 'salutation' %}&nbsp;<a id="login_button" href="/login">{% trans 'login' %}</a>
-            {% endif %}
-        </div>
         <div class="filter_context" role="search" aria-labelledby="filter_group_header">
           <h2 id="filter_group_header" class="visuallyhidden">Find Study Spaces by Specific Criteria</h2>
           <button id="filter_button" type="button" aria-label="Filter settings..." aria-owns="filter_container" >{%trans 'filters' %}<i class="fa fa-angle-double-down"></i></button>

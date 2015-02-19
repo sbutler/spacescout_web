@@ -632,7 +632,7 @@ var requests = [];
             position: spaceLatLng,
             map: map,
             icon: {
-                url: static_url('img/pins/pin00@2x.png'),
+                url: static_url('img/pins/pin00@3x.png'),
                 scaledSize: new GM.Size(40,40)
             }
         });
