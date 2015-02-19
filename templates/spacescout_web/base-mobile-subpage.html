@@ -1,4 +1,3 @@
-{% load staticfiles %}
 <!DOCTYPE html>
 <!--
 
@@ -34,6 +33,7 @@
 
 
         {% load compress %}
+        {% load staticfiles %}
         {% compress css %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/tokenfield-typeahead.css" charset="utf-8" />

@@ -1,4 +1,3 @@
-{% load staticfiles %}
 <!DOCTYPE html>
 <!--
 
@@ -36,6 +35,7 @@
 		<meta name="description" content="Searching for that perfect study spot? IlliniSpaces helps University of Illinois students quickly locate campus spaces and resources to use for study or collaboration">
         {% load url from future %}
         {% load compress %}
+        {% load staticfiles %}
         {% compress css %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap.min.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
