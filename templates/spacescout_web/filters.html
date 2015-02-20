@@ -257,9 +257,9 @@
     <div id="filter_restricted_access">
         {% if user.is_authenticated %}
             Restricting spaces for {{ user }}.
-            <a href="/shib/logout">Log out</a> to see all spaces.
+            <a href="/uiuc/logout">Log out</a> to see all spaces.
         {% else %}
-            <a href="/shib/login">Log in</a> to exclude restricted spaces.
+            <a href="/uiuc/login">Log in</a> to exclude restricted spaces.
         {% endif %}
     </div>
 </fieldset>

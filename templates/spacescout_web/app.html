@@ -83,9 +83,9 @@
             <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
             {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
             <span>|</span>
-            <a id="logout_button" href="/shib/logout">{% trans 'logout' %}</a>
+            <a id="logout_button" href="/uiuc/logout">{% trans 'logout' %}</a>
             {% else %}
-            {% trans 'salutation' %}&nbsp;<a id="login_button" href="/shib/login">{% trans 'login' %}</a>
+            {% trans 'salutation' %}&nbsp;<a id="login_button" href="/uiuc/login">{% trans 'login' %}</a>
             {% endif %}
           </div>
         </div>
