@@ -2,9 +2,10 @@
 
 {% block extra_compress_css %}
 {% load compress %}
+{% load staticfiles %}
 {% compress css %}
 <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites.less" media="screen, handheld" />
-<link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/favorites-uiuc.less" media="screen, handheld" />
+<link rel="stylesheet" type="text/less" href="{% static 'uiuc/css/favorites.less' %}" media="screen, handheld" />
 {% endcompress %}
 {% endblock %}
 
@@ -50,9 +51,9 @@
                 <a href="javascript:void(0);">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
                 {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
                 <span>|</span>
-                <a href="logout?next=/">{% trans 'logout' %}</a>
+                <a id='logout_button' href="/uiuc/logout?next=/">{% trans 'logout' %}</a>
               {% else %}
-                {% trans 'salutation' %}&nbsp;<a href="/login?next={% firstof request.path '/' %}">{% trans 'login' %}</a>
+                {% trans 'salutation' %}&nbsp;<a id='login_button' href="/uiuc/login?next={% firstof request.path '/' %}">{% trans 'login' %}</a>
               {% endif %}
            </div>
            <div class="favorites-header"><span></span></div>

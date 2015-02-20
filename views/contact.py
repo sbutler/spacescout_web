@@ -29,7 +29,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required(login_url='/login')
+@login_required
 def contact(request, spot_id=None):
     contact_variables = _contact_variables(request, spot_id)
     if spot_id is None:

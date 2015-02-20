@@ -33,12 +33,13 @@
 
 
         {% load compress %}
+        {% load staticfiles %}
         {% compress css %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/bootstrap-custom.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/bootstrap/css/tokenfield-typeahead.css" charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}libs/font-awesome.min.css" charset="utf-8">
         <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile.less" media="screen, handheld" />
-        <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}css/mobile-uiuc.less" media="screen, handheld" />
+        <link rel="stylesheet" type="text/less" href="{% static 'uiuc/css/mobile.less' %}" media="screen, handheld" />
         {% endcompress %}
         {% block extra_compress_css %}{% endblock %}
 

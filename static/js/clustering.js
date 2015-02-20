@@ -136,11 +136,11 @@
     function _createMarker(spots, group_center) {
         var num_spots = spots.length;
         var main_icon = {
-            url: static_url('img/pins/pin00@2x.png'),
+            url: static_url('img/pins/pin00@3x.png'),
             scaledSize: new GM.Size(40,40)
         };
         var alt_icon = {
-            url: static_url('img/pins/pin00-alt@2x.png'),
+            url: static_url('img/pins/pin00@3x.png'),
             scaledSize: new GM.Size(40,40)
         };
 
@@ -153,7 +153,7 @@
             spots: spots,
             labelContent: num_spots, // # of spots to display on label in text
             labelClass: "map-label", // the CSS class for the label
-            labelAnchor: new GM.Point(15, 34) // position label over main_icon (position assumes 40x40 marker)
+            labelAnchor: new GM.Point(12, 38) // position label over main_icon (position assumes 40x40 marker)
         });
         
         GM.event.addListener(marker, 'click', function() {

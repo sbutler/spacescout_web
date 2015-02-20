@@ -1,5 +1,6 @@
 {% extends "spacescout_web/base-mobile.html" %}
 {% load url from future %}
+{% load staticfiles %}
 
 {% block extra_css %}
 {% endblock %}
@@ -80,19 +81,19 @@
                 </span>
                 {% endifnotequal %}
             </div>
+            <div class="user_context">
+                {% if user.is_authenticated %}
+                  <span class="salutation">{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
+                  <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
+                  <span>|</span>
+                  {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
+                  <a id="logout_button" href="/uiuc/logout">{% trans 'logout' %}</a>
+                {% else %}
+                  {% trans 'salutation' %}&nbsp;<a id="login_button" href="/uiuc/login">{% trans 'login' %}</a>
+                {% endif %}
+            </div>
         </div>
       </div>
-        <div class="user_context">
-            {% if user.is_authenticated %}
-              <span class="salutation">{% trans 'greeting' %}&nbsp;{{ request.user }}</span>
-              <a href="/favorites">{% trans 'favorites' %} <span class="favorites_count_container"></span></a>
-              <span>|</span>
-              {% tplhandlebars "favorites_count" %}({{count}}){% endtplhandlebars %}
-              <a id="logout_button" href="/logout">{% trans 'logout' %}</a>
-            {% else %}
-              {% trans 'salutation' %}&nbsp;<a id="login_button" href="/login">{% trans 'login' %}</a>
-            {% endif %}
-        </div>
         <div class="filter_context" role="search" aria-labelledby="filter_group_header">
           <h2 id="filter_group_header" class="visuallyhidden">Find Study Spaces by Specific Criteria</h2>
           <button id="filter_button" type="button" aria-label="Filter settings..." aria-owns="filter_container" >{%trans 'filters' %}<i class="fa fa-angle-double-down"></i></button>
@@ -163,7 +164,7 @@
         <div id="info_list" class="mobile-lazyload" >
         <h2 id="space_list_header" class="visuallyhidden">List of Spaces</h2>
             <div class="list-inner" aria-labelledby="space_list_header">
-                <div class="list-arrow"><a id="filter_link" title="List of spaces" href="#"><img alt="" src="{{ STATIC_URL }}img/uiuc_list.png" /></a></div>
+                <div class="list-arrow"><a id="filter_link" title="List of spaces" href="#"><img alt="" src="{% static 'uiuc/img/list.png' %}" /></a></div>
 
                 <!-- TODO: need to implement if/else logic for spinner and info_items -->
                 <div class="loading"><div class="loading-inner"  role="alert">&nbsp;&nbsp;Loading spaces...</div></div>
