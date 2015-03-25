@@ -77,7 +77,15 @@ def contact(request, spot_id=None):
                         browser=browser,
                     )
 
-                    send_mail(subject, email_message, sender, settings.FEEDBACK_EMAIL_RECIPIENT)
+                    recipient_list = list(settings.FEEDBACK_EMAIL_RECIPIENT)
+                    try:
+                        spot = Spot(spot_id=spot_id, request=request).get()
+                        if spot['manager']:
+                            recipient_list.append(spot['manager'])
+                    except:
+                        pass
+
+                    send_mail(subject, email_message, sender, recipient_list)
                 except Exception as e:
                     logger.error('Contact failure: %s' % (e))
                     return HttpResponseRedirect('/sorry/' + spot_id)
