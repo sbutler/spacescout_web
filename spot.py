@@ -37,7 +37,11 @@ FALLBACK_LOCATION = {
 
 def _server_request(url, method='GET', body=None, headers=None, request=None):
     """ Perform a request to the backend server and return the results. """
-    if request and not hasattr(request, 'ss_server_client'):
+    client = None
+    if request:
+        client = getattr(request, 'ss_server_client', None)
+
+    if not client:
         # Required settings for the client
         if not hasattr(settings, 'SS_WEB_SERVER_HOST'):
             raise Exception("Required setting missing: SS_WEB_SERVER_HOST")
@@ -49,10 +53,8 @@ def _server_request(url, method='GET', body=None, headers=None, request=None):
         consumer = oauth2.Consumer(key=settings.SS_WEB_OAUTH_KEY, secret=settings.SS_WEB_OAUTH_SECRET)
         client = oauth2.Client(consumer)
 
-        request.ss_server_client = client
-    else:
-        client = request.ss_server_client
-
+        if request:
+            request.ss_server_client = client
 
     if body is None:
         body = ''
@@ -317,7 +319,8 @@ class Spot(object):
         self.spot_id = spot_id
         self.request = request
 
-    def _fixup_spot(self, spot):
+    @staticmethod
+    def _fixup_spot(spot):
         """ Take a spot dict and pretty it up for display. """
         if 'type' in spot and isinstance(spot['type'], types.ListType):
             typeslist = []
@@ -325,12 +328,14 @@ class Spot(object):
                 typeslist.append(_(t))
             spot["type"] = ', '.join(typeslist)
 
+        spot['server_last_modified'] = spot['last_modified']
         modified_date = spot["last_modified"][5:10] + '-' + spot["last_modified"][:4]
         spot["last_modified"] = re.sub('-', '/', modified_date)
 
         return spot
 
-    def _search_query(self, options):
+    @staticmethod
+    def _search_query(options):
         """
         Take a search options array and build a URL query string
         from it.
@@ -346,6 +351,56 @@ class Spot(object):
                 args.append("{0}={1}".format(urlquote(key), urlquote(value)))
 
         return '&'.join(args)
+
+    @classmethod
+    def get_all_json(self, request=None, use_cache=True, fill_cache=False, cache_period=DEFAULT_CACHE_PERIOD):
+        """
+        Construct and execute a search for all the spots.
+        Returns the spot data.
+        """
+        options = {
+            'limit': '0',
+        }
+
+        query = self._search_query(options)
+
+        def _cache_key():
+            return "space_search_%s" % hashlib.sha224(query).hexdigest()
+
+        # We don't want the management command that fills the cache to get
+        # a cached value
+        if use_cache:
+            cache_key = _cache_key()
+
+            # The cache is (hopefully) filled from the load_open_now_cache
+            # management command
+            cached = cache.get(cache_key)
+            if cached:
+                return cached
+
+        url = "/api/v1/spot/all?{0}".format(query)
+        resp, content = _server_request(url, request=request, headers={
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        })
+
+        if resp.status == 200:
+            if fill_cache:
+                cache_key = _cache_key()
+                cache.set(cache_key, content, cache_period)
+            return content
+
+        return '[]'
+
+    @classmethod
+    def get_all(self, request=None, use_cache=True, fill_cache=False, cache_period=DEFAULT_CACHE_PERIOD):
+        """ Construct and execute a search for all the spots. """
+        data = self.get_all_json(request, use_cache, fill_cache, cache_period)
+        spots = json.loads(data)
+        for i, spot in enumerate(spots):
+            spots[i] = self._fixup_spot(spot)
+
+        return spots
 
     def get_json(self):
         """ Get the spot data and return as JSON. """

@@ -25,7 +25,7 @@ import re
 from spacescout_web.spot import SpotFavorite, SpotShare, Spot, SpotException, get_building_json
 
 @mobile_template('spacescout_web/{mobile/}app.html')
-def HomeView(request, template=None):
+def HomeView(request, template=None, **kwargs):
     # The preference order is cookie, config, then some static values
     # That fallback order will also apply if the cookie campus isn't in
     # settings.

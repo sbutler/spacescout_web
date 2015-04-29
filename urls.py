@@ -41,7 +41,7 @@ urlpatterns = patterns('spacescout_web.views',
     url(r'^favorites?$', 'favorites.FavoritesView'),
     url(r'space/(?P<spot_id>\d+)/reviews$', ReviewsView().run),
     url(r'space/(?P<spot_id>\d+)/json/$', 'spot.SpotView', {'return_json': True}),
-    url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/width:(?P<thumb_width>\d+)(?:,height:(?P<thumb_height>\d+))?$', 'image.ImageView', {'constrain': True}),
+    url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/width:(?P<thumb_width>\d+)(?:,height:(?P<thumb_height>\d+))?$', 'image.ImageView', {'constrain': True}, name='space-image-thumb'),
     url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/constrain/height:(?P<thumb_height>\d+)(?:,width:(?P<thumb_width>\d+))?$', 'image.ImageView', {'constrain': True}),
     url(r'space/(?P<spot_id>\d+)/image/(?P<image_id>\d+)/thumb/(?P<thumb_width>\d+)x(?P<thumb_height>\d+)$', 'image.ImageView'),
     url(r'images/(?P<image_ids>[\d,]+)/thumb/constrain/width:(?P<thumb_width>\d+)(?:,height:(?P<thumb_height>\d+))?$', 'image.MultiImageView', {'constrain': True}),
@@ -56,7 +56,7 @@ urlpatterns += patterns('',
                         )
 
 urlpatterns += patterns('spacescout_web.views',
-                        url(r'^space/\d+/.*$', 'home.HomeView'))
+        url(r'^space/(?P<spot_id>\d+)/(?P<spot_name>[^/]*)(?:/(?P<share_hash>[a-f0-9]{32}))?$', 'home.HomeView', name='share-url'))
 
 for key in settings.SS_LOCATIONS:
     urlpatterns += patterns('spacescout_web.views',
