@@ -41,6 +41,7 @@ def contact(request, spot_id=None):
     back = contact_variables['back']
     spot_name = contact_variables['spot_name']
     spot_description = contact_variables['spot_description']
+    is_info_report = contact_variables['is_info_report']
 
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -78,12 +79,13 @@ def contact(request, spot_id=None):
                     )
 
                     recipient_list = list(settings.FEEDBACK_EMAIL_RECIPIENT)
-                    try:
-                        spot = Spot(spot_id=spot_id, request=request).get()
-                        if spot['manager']:
-                            recipient_list.append(spot['manager'])
-                    except:
-                        pass
+                    if not is_info_report:
+                        try:
+                            spot = Spot(spot_id=spot_id, request=request).get()
+                            if spot['manager']:
+                                recipient_list.append(spot['manager'])
+                        except:
+                            pass
 
                     send_mail(subject, email_message, sender, recipient_list)
                 except Exception as e:
@@ -100,6 +102,7 @@ def contact(request, spot_id=None):
         'spot_name': spot_name,
         'spot_description': spot_description,
         'spot_id': spot_id,
+        'is_info_report': is_info_report,
     }, context_instance=RequestContext(request))
 
 
@@ -153,6 +156,14 @@ def _contact_variables(request, spot_id):
     else:
        is_mobile = False
 
+    if 'info' in request.GET:
+        try:
+            is_info_report = (int(request.GET['info']) != 0)
+        except ValueError:
+            is_info_report = False
+    else:
+        is_info_report = False
+
     if is_mobile and spot_id is not None:
         back = ('/space/' + spot_id)
     else:
@@ -162,6 +173,7 @@ def _contact_variables(request, spot_id):
         'spot_name': spot_name,
         'spot_description': spot_description,
         'is_mobile': is_mobile,
+        'is_info_report': is_info_report,
         'back': back
     }
 
