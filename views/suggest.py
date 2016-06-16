@@ -69,15 +69,15 @@ def suggest(request, spot_id=None):
                         \nDescription: {description}\n\
                         \nJustification: {justification}\n\
                         \nBrowser Type: {browser}".format(
-                        name=name,
-                        sender=sender,
-                        netid=netid,
-                        building=building,
-                        floor=floor,
-                        room_number=room_number,
-                        description=description,
-                        justification=justification,
-                        browser=browser,
+                        name=name.encode('utf8'),
+                        sender=sender.encode('utf8'),
+                        netid=netid.encode('utf8'),
+                        building=building.encode('utf8'),
+                        floor=floor.encode('utf8'),
+                        room_number=room_number.encode('utf8'),
+                        description=description.encode('utf8'),
+                        justification=justification.encode('utf8'),
+                        browser=browser.encode('utf8'),
                     )
 
                     if not hasattr(settings, 'FEEDBACK_EMAIL_RECIPIENT'):
