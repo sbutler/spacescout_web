@@ -163,7 +163,7 @@
             </select>
         </div>
 
-                    
+
         <div aria-labelledby="until-time-heading">
             <span class="hours-from" id="until-time-heading">until</span>
             <label class="hour-until visuallyhidden" for="day-until">until day:</label>
@@ -228,6 +228,24 @@
         </select>
     </div>
 </fieldset>
+<fieldset id="filter_noise_level" class="choice-group">
+    <legend id="filter_noise_level_header">Noise Level</legend>
+
+    <div>
+        <div class="checkbox">
+            <input type="checkbox" id="silent" name="noise_level" value="silent">
+            <label class="inline" for="silent">Silent</label>
+        </div>
+        <div class="checkbox">
+            <input type="checkbox" id="quiet" name="noise_level" value="quiet">
+            <label class="inline" for="quiet">Low hum</label>
+        </div>
+        <div class="checkbox">
+            <input type="checkbox" id="moderate" name="noise_level" value="moderate">
+            <label class="inline" for="moderate">Chatter</label>
+        </div>
+    </div>
+</fieldset>
 <fieldset id="filter_other" class="choice-group">
     <legend id="filter_other_header">More Options</legend>
 
@@ -263,5 +281,3 @@
         {% endif %}
     </div>
 </fieldset>
-
-

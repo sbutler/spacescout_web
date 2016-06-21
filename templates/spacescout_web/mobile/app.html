@@ -151,7 +151,7 @@
             </div>
         </form>
     </div>
-    
+
     <div id="main_content" class="clearfix" role="main" aria-labelledby="app_header">
         <h2 id="map_header" class="visuallyhidden" aria-hidden="true">Map of Spaces</h2>
         <div id="map_canvas" aria-labelledby="map_header" aria-hidden="true"></div>
@@ -282,7 +282,7 @@
 			<a id="back_home_button" href="javascript:void(0);"><img class="back-button" src="{% static 'img/details_arrow.png' %}" />
 			Back to space list</a>
 		</div>
-		
+
         <div id="name-type-block" class="pull-left">
           <h2 class="space-detail-name" style=""><span class="visuallyhidden">Space Details:</span> {{name}}</h2>
       	  <div class="space-detail-type">{{{ type }}} {{ #if capacity }}<span class="space-detail-capacity">[Seats&nbsp;{{capacity}}]</span>{{ /if }}</div>
@@ -360,14 +360,17 @@
                                     </div>
                                 </li>
                             {{ /if }}
-							
+
                             <li id="mobile_hours_template" class="clearfix">
                               <h3 class="space-info-label pull-left">Hours</h3><div class="space-info-detail pull-left">{{formatHours available_hours}}</div>
                             </li>
 
-                            {{ #if extended_info.location_description }}
-                            <li class="clearfix"><h3 class="space-info-label pull-left">Location</h3><div class="space-info-detail pull-left">{{extended_info.location_description}}</div></li>
-                            {{ /if }}
+                            {{#if extended_info.location_description}}
+                                <li class="clearfix"><h3 class="space-info-label pull-left">Location</h3><div class="space-info-detail pull-left">{{extended_info.location_description}}</div></li>
+                            {{/if}}
+                            {{#if extended_info.mail_address}}
+                                <li class="clearfix"><h3 class="space-info-label pull-left">Address</h3><div class="space-info-detail pull-left">{{extended_info.mail_address}}</div></li>
+                            {{/if}}
 
                             {{ #if has_resources }}
                             <li class="clearfix">
@@ -443,7 +446,8 @@
                     </div>
 
                     <div class="space-detail-report">
-                        <a href="/contact/{{ id }}/">Report a problem with this space</a>
+                        <a href="/contact/{{ id }}/">Report a problem with this physical space.</a><br>
+                        <a href="/contact/{{ id }}/?info=1">Report a problem with this space's information.</a>
                     </div>
                 </div>
             </div>

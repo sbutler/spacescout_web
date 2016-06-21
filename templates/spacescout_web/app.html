@@ -189,7 +189,7 @@
 
                             <div style="margin: 0 20px 20px 20px;">
 
-                                
+
                                 <div class="space-info">
                                      <ul>
 
@@ -222,7 +222,12 @@
                                         {{/if}}
 
                                         <li class="clearfix"><h3 class="space-info-label pull-left">Hours</h3><div class="space-info-detail pull-left">{{formatHours available_hours}}</div></li>
-                                        <li class="clearfix"><h3 class="space-info-label pull-left">Location</h3><div class="space-info-detail pull-left">{{extended_info.location_description}}</div></li>
+                                        {{#if extended_info.location_description}}
+                                            <li class="clearfix"><h3 class="space-info-label pull-left">Location</h3><div class="space-info-detail pull-left">{{extended_info.location_description}}</div></li>
+                                        {{/if}}
+                                        {{#if extended_info.mail_address}}
+                                            <li class="clearfix"><h3 class="space-info-label pull-left">Address</h3><div class="space-info-detail pull-left">{{extended_info.mail_address}}</div></li>
+                                        {{/if}}
                                         {{#if has_resources }}
                                         <li class="clearfix">
                                             <h3 class="space-info-label pull-left">Resources</h3>
@@ -304,7 +309,8 @@
                                 </div>
 
                                 <div class="space-detail-report">
-                                    <a href="/contact/{{ id }}/">Report a problem with this space</a>
+                                    <a href="/contact/{{ id }}/">Report a problem with this physical space.</a><br>
+                                    <a href="/contact/{{ id }}/?info=1">Report a problem with this space's information.</a><br>
                                 </div>
 
                                 <div class="space-detail-footer">This space was last updated on {{last_modified}} by {% if organization %}{{ organization }}{%else%}University of Illinois at Urbana-Champaign{% endif %}</div>
@@ -330,7 +336,7 @@
 
                         {{#if data}}<ol class="lazyload-view">
                         {{#each data}}
-                 
+
                 <!-- space list start -->
 			    <li><h3 class="building_header">{{this.name}}</h3>
                             <ol>{{#each this.spots}}
